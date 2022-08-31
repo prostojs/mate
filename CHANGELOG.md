@@ -1,3 +1,12 @@
+## [0.1.2](https://github.com/prostojs/mate/compare/v0.1.1...v0.1.2) (2022-08-31)
+
+
+### Bug Fixes
+
+* import ./reflect ([5151b0b](https://github.com/prostojs/mate/commit/5151b0b6fc7dfe6610cb1d7d4d583d787e6b8ed2))
+
+
+
 ## [0.1.1](https://github.com/prostojs/mate/compare/v0.1.0...v0.1.1) (2022-08-31)
 
 
