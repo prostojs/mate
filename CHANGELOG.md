@@ -1,3 +1,12 @@
+# [0.1.0](https://github.com/prostojs/mate/compare/v0.0.3...v0.1.0) (2022-08-31)
+
+
+### Features
+
+* add inheritance and reflect-metadata impl. ([0b837bd](https://github.com/prostojs/mate/commit/0b837bd90889042f36e5ba8939ae8064ba7cd2bc))
+
+
+
 ## [0.0.3](https://github.com/prostojs/mate/compare/v0.0.2...v0.0.3) (2022-08-31)
 
 
