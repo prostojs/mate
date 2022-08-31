@@ -1,3 +1,12 @@
+## [0.0.3](https://github.com/prostojs/mate/compare/v0.0.2...v0.0.3) (2022-08-31)
+
+
+### Features
+
+* add readReturnType, readType options ([af528ac](https://github.com/prostojs/mate/commit/af528ac37db65ead803c75adae547c2b895c0542))
+
+
+
 ## [0.0.2](https://github.com/prostojs/mate/compare/v0.0.1...v0.0.2) (2022-08-31)
 
 
