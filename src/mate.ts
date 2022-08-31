@@ -1,7 +1,10 @@
-import './reflect'
+import { Reflect as _reflect } from './reflect'
 import { panic } from './utils/panic'
 import { TAny, TFunction, TObject } from'./types'
 import { getConstructor, isConstructor } from './utils/helpers'
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const Reflect = global?.Reflect || self?.Reflect || _reflect
 
 export interface TMergedDecoratorArgs {
     target: TFunction | TObject
