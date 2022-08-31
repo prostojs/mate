@@ -13,14 +13,21 @@ export interface TMergedDecoratorArgs {
 
 export interface TProstoMetadata<TParams extends TProstoParamsMetadata = TProstoParamsMetadata> {
     params: TParams[]
+    type?: TFunction
+    returnType?: TFunction
 }
 
 export interface TProstoParamsMetadata {
-    type: TFunction
+    type?: TFunction
+}
+
+export interface TMateOptions {
+    readReturnType?: boolean
+    readType?: boolean
 }
 
 export class Mate<T extends TProstoMetadata = TProstoMetadata> {
-    constructor(protected workspace: string) {}
+    constructor(protected workspace: string, protected options: TMateOptions = {}) {}
 
     set<R extends T = T, RP = R['params'][0]>(
         args: TMergedDecoratorArgs,
@@ -47,6 +54,12 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
         isArray?: boolean,
     ): void {
         let meta: R = Reflect.getMetadata(this.workspace, args.target, args.propKey as string) as R || {}
+        if (args.propKey && this.options.readReturnType && !meta.returnType) {
+            meta.returnType = Reflect.getMetadata('design:returntype', args.target, args.propKey as string) as TFunction
+        }
+        if (args.propKey && this.options.readType && !meta.type) {
+            meta.type = Reflect.getMetadata('design:type', args.target, args.propKey as string) as TFunction
+        }
         const { index } = args
         const cb = typeof key === 'function' ? key : undefined
         let data: R & RP = meta as R & RP

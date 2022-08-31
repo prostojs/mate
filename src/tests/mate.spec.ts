@@ -35,6 +35,8 @@ describe('Mate', () => {
                 'method value1',
                 'method value2',
             ],
+            returnType: String,
+            type: Function,
             params: [
                 {
                     param: 'param b',
@@ -55,6 +57,8 @@ describe('Mate', () => {
             fld4: 'test4',
             method: 'method value',
             method2: 'method value2',
+            returnType: undefined,
+            type: Function,
             params: [
                 {
                     param1: 'param c1',
@@ -76,6 +80,8 @@ describe('Mate', () => {
             d3: 'v3',
             method: 'method value',
             params: [],
+            returnType: undefined,
+            type: Function,
         })
     })
     it('must read metadata by instance class', () => {

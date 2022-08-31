@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Mate } from '..'
 
-const mate = new Mate('test')
+const mate = new Mate('test', {
+    readReturnType: true,
+    readType: true,
+})
 const D1 = mate.decorate('d1', 'v1')
 const D2 = mate.decorate('d2', 'v2')
 const D3 = mate.decorate('d3', 'v3')
@@ -27,8 +30,8 @@ export class DecoratorHelpersTestClass {
         @mate.decorate('param', 'param b')
         @mate.decorate('paramArray', 'param b1', true)
         @mate.decorate('paramArray', 'param b2', true)
-            _b: string) {
-        //
+            _b: string): string {
+        return 'abc'
     }
 
     @mate.decorate(meta => ({

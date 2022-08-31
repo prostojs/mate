@@ -5,6 +5,6 @@ export function getConstructor<T = TObject>(instance: T): TFunction {
     return Object.getPrototypeOf(instance).constructor
 }
 
-export function isConstructor<T = TAny>(v: T): v is T & TClassConstructor {
+export function isConstructor<T = TAny>(v: T): v is (T & TClassConstructor) {
     return typeof v === 'function' && Object.getOwnPropertyNames(v).includes('prototype') && !Object.getOwnPropertyNames(v).includes('caller') && !!v.name
 }

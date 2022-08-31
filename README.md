@@ -58,6 +58,8 @@ console.log(mate.read(MyClass, 'methodName'))
 
 ## Constructor Params Decorators
 
+`params[].type` are filled from `design:paramtypes` automatically
+
 ```ts
 import { Mate } from '@prostojs/mate'
 const mate = new Mate('my-metadata-key')
@@ -79,6 +81,8 @@ console.log(mate.read(MyClass))
 ```
 
 ## Method Params Decorators
+
+`params[].type` are filled from `design:paramtypes` automatically
 
 ```ts
 import { Mate } from '@prostojs/mate'
@@ -112,7 +116,10 @@ interface MyMeta extends TProstoMetadata {
     n: number
     simple: boolean
 }
-const mate = new Mate<MyMeta>('my-metadata-key')
+const mate = new Mate<MyMeta>('my-metadata-key', {
+    readReturnType: true,   // to copy `design:returntype` -> `returnType` of metadata object
+    readType: true,         // to copy `design:type` -> `type` of metadata object
+})
 
 // Example of simple decorator
 const SimpleDecorator = mate.decorate('simple', true)
