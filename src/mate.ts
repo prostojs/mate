@@ -1,6 +1,4 @@
-// require('reflect-metadata')
-// import 'reflect-metadata'
-require('./reflect')
+import './reflect'
 import { panic } from './utils/panic'
 import { TAny, TFunction, TObject } from'./types'
 import { getConstructor, isConstructor } from './utils/helpers'
