@@ -1,9 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Mate } from '..'
+import { Mate, TProstoMetadata } from '..'
 
-const mate = new Mate('test', {
+export const mate = new Mate<{inherit?: boolean} & TProstoMetadata>('test', {
     readReturnType: true,
     readType: true,
+    inherit(classMeta, prop, methodMeta) {
+        if (prop) {
+            return !!methodMeta?.inherit || !!(classMeta?.inherit && !methodMeta)
+        }
+        return !!classMeta?.inherit
+    },
 })
 const D1 = mate.decorate('d1', 'v1')
 const D2 = mate.decorate('d2', 'v2')
@@ -13,7 +19,7 @@ const Apply3 = mate.apply(D1, D2, D3)
 @mate.decorate('class', 'class value')
 @mate.decorate('classArray', 'class value 1', true)
 @mate.decorate('classArray', 'class value 2', true)
-export class DecoratorHelpersTestClass {
+export class MateTestClass {
     constructor(
         @mate.decorate('param', 'param a')
         @mate.decorate('paramArray', 'param a1', true)
@@ -38,13 +44,13 @@ export class DecoratorHelpersTestClass {
         ...meta,
         fld1: 'test1',
         fld2: 'test2',
-    }))
+        }))
     @mate.decorate('method2', 'method value2')
     @mate.decorate(meta => ({
         ...meta,
         fld3: 'test3',
         fld4: 'test4',
-    }))
+        }))
     @mate.decorate('method', 'method value')
     viaCB(
         @mate.decorate('param1', 'param c1')
@@ -58,11 +64,56 @@ export class DecoratorHelpersTestClass {
 }
 
 @Apply3
-export class DecoratorHelpersTestClass2 {
+export class MateTestClass2 {
+    constructor(a: string) {
+        //
+    }
+
     @mate.decorate('method', 'method value')
     @Reflect.metadata('key', 'value')
     @Apply3
     test() {
+        //
+    }
+
+    @mate.decorate('method', 'method from class 2')
+    @mate.decorate('method2', 'method from class 2')
+    toOverwriteMeta() {
+        //
+    }
+}
+
+@mate.decorate('inherit', true)
+export class MateTestClass3 extends MateTestClass2 {
+    constructor() {
+        super('a.toString()')
+    }
+
+    @mate.decorate('method', 'method test2')
+    test2() {
+        //
+    }
+
+    @mate.decorate('method2', 'method from class 3')
+    @mate.decorate('inherit', true)
+    toOverwriteMeta() {
+        //
+    }
+}
+
+@mate.decorate('inherit', false)
+export class MateTestClass4 extends MateTestClass2 {
+    constructor() {
+        super('a.toString()')
+    }
+
+    @mate.decorate('method', 'method test2 4')
+    test2() {
+        //
+    }
+
+    @mate.decorate('method2', 'method from class 3 4')
+    toOverwriteMeta() {
         //
     }
 }

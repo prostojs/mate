@@ -119,6 +119,7 @@ interface MyMeta extends TProstoMetadata {
 const mate = new Mate<MyMeta>('my-metadata-key', {
     readReturnType: true,   // to copy `design:returntype` -> `returnType` of metadata object
     readType: true,         // to copy `design:type` -> `type` of metadata object
+    inherit: false,         // allow or disable metadata inheritance        
 })
 
 // Example of simple decorator
@@ -204,3 +205,46 @@ interface TMyMeta extends TProstoMetadata<TMyParamsMeta> {
 // pass TMyMeta to Mate constructor to define types for mate instance
 const mate = new Mate<TMyMeta>('my-metadata-key')
 ```
+
+## Metadata Inheritance
+
+It's possible to enable metadata inheritance and set some rules on whether it should be inherited from parent classes or not
+
+### Metadata Inheritance ON
+
+Simply use `true` on `inherit` key to enable metadata inheritance
+
+```ts
+const mate = new Mate<MyMeta>('my-metadata-key', {
+    inherit: true, // this will enable metadata inheritance for all the classes
+})
+```
+
+### Conditional Metadata Inheritance
+
+This example illustrates how to set a callback with logic to decide whether to inherit or not
+
+```ts
+const mate = new Mate<MyMeta>('my-metadata-key', {
+    inherit(classMeta, prop, methodMeta) {
+        if (prop) {
+            // if it is a method metadata
+            // we require a key `inherit` to be true for inheritance
+            return !!methodMeta?.inherit || !!(classMeta?.inherit && !methodMeta)
+        }
+        // otherwise (in case of class metadata) we require a key `inherit`
+        // to be true for inheritance on class metadata
+        return !!classMeta?.inherit
+    }
+})
+```
+
+## Use or **reflect-metadata**
+
+It is recomended to include `reflect-metadata` dependency to rely on the original implementation. Although it's still possible to use `@prostojs/mate` with no dependency on `reflect-metadata` because it already includes its own limited implementation of reflect-metadata which ships only the features used by `@prostojs/mate` such as:
+
+- `getOwnMetadata(key, target, prop?)`
+
+- `defineMetadata(key, data, target, prop?)`
+
+- `metadata(key, data)`

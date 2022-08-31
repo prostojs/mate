@@ -1,14 +1,16 @@
 import { Mate } from '../mate'
-import { DecoratorHelpersTestClass, DecoratorHelpersTestClass2 } from './mate.artifacts'
+import { MateTestClass, MateTestClass2, MateTestClass3, mate, MateTestClass4 } from './mate.artifacts'
 import { getConstructor, isConstructor } from '../utils/helpers'
 
-const mate = new Mate('test')
-
 describe('Mate', () => {
-    const classMeta = mate.read(DecoratorHelpersTestClass)
-    const methodMeta = mate.read(DecoratorHelpersTestClass, 'test')
-    const viaCBMeta = mate.read(DecoratorHelpersTestClass, 'viaCB')
-    const methodMeta2 = mate.read(DecoratorHelpersTestClass2, 'test')
+    const classMeta = mate.read(MateTestClass)
+    const methodMeta = mate.read(MateTestClass, 'test')
+    const viaCBMeta = mate.read(MateTestClass, 'viaCB')
+    const classMeta2 = mate.read(MateTestClass2)
+    const methodMeta2 = mate.read(MateTestClass2, 'test')
+    const classMeta3 = mate.read(MateTestClass3)
+    const methodMeta3test = mate.read(MateTestClass3, 'test')
+    const methodMeta3test2 = mate.read(MateTestClass3, 'test2')
     it('must process class meta', () => {
         expect(classMeta).toEqual({
             class: 'class value',
@@ -73,6 +75,14 @@ describe('Mate', () => {
             ],
         })
     })
+    it('must process mate-apply meta', () => {
+        expect(classMeta2).toEqual({
+            d1: 'v1',
+            d2: 'v2',
+            d3: 'v3',
+            params: [{ type: String }],
+        })
+    })
     it('must process solo method meta', () => {
         expect(methodMeta2).toEqual({
             d1: 'v1',
@@ -84,8 +94,69 @@ describe('Mate', () => {
             type: Function,
         })
     })
-    it('must read metadata by instance class', () => {
-        expect(methodMeta2).toBe(mate.read(new DecoratorHelpersTestClass2(), 'test'))
+    it('must read metadata by class instance', () => {
+        expect(methodMeta2).toEqual(mate.read(new MateTestClass2('1'), 'test'))
+    })
+    it('must read inherited class metadata', () => {
+        expect(classMeta3).toEqual({
+            d1: 'v1',
+            d2: 'v2',
+            d3: 'v3',
+            inherit: true,
+            params: [],
+        })
+    })
+    it('must read inherited method metadata', () => {
+        expect(methodMeta3test).toEqual({
+            d1: 'v1',
+            d2: 'v2',
+            d3: 'v3',
+            method: 'method value',
+            params: undefined,
+            returnType: undefined,
+            type: Function,
+        })
+    })
+    it('must read own method meta', () => {
+        expect(methodMeta3test2).toEqual({
+            method: 'method test2',
+            params: [],
+            returnType: undefined,
+            type: Function,
+        })
+        expect(mate.read(MateTestClass3, 'toOverwriteMeta')).toEqual({
+            method: 'method from class 2',
+            method2: 'method from class 3',
+            params: [],
+            inherit: true,
+            returnType: undefined,
+            type: Function,
+        })
+    })
+    
+    it('must not inherit when condition for inheritance is false', () => {
+        const classMeta = mate.read(MateTestClass4)
+        const methodMetaTest = mate.read(MateTestClass4, 'test')
+        const methodMetaTest2 = mate.read(MateTestClass4, 'test2')
+        const methodMetaTest3 = mate.read(MateTestClass4, 'toOverwriteMeta')
+        
+        expect(classMeta).toEqual({
+            inherit: false,
+            params: [],
+        })
+        expect(methodMetaTest).toBeUndefined()
+        expect(methodMetaTest2).toEqual({
+            method: 'method test2 4',
+            params: [],
+            returnType: undefined,
+            type: Function,
+        })
+        expect(methodMetaTest3).toEqual({
+            method2: 'method from class 3 4',
+            params: [],
+            returnType: undefined,
+            type: Function,
+        })
     })
 })
 

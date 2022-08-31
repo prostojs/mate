@@ -59,3 +59,11 @@ declare var __DYE_BLACK__: string
 declare var __DYE_BG_BLACK__: string
 declare var __DYE_BLACK_BRIGHT__: string
 declare var __DYE_BG_BLACK_BRIGHT__: string
+
+declare namespace Reflect {
+    function getOwnMetadata(key: string | symbol, target: TObject | TFunction, prop?: string | symbol): unknown
+    function defineMetadata(key: string | symbol, data: unknown, target: TObject | TFunction, prop?: string | symbol): void
+    function metadata(key: string | symbol, data: unknown): ClassDecorator & MethodDecorator & ParameterDecorator
+}
+
+declare var self: Record<string | symbol, unknown>
