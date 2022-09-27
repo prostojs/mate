@@ -1,3 +1,12 @@
+## [0.1.7](https://github.com/prostojs/mate/compare/v0.1.6...v0.1.7) (2022-09-27)
+
+
+### Features
+
+* add index to decorator cb ([f75b94d](https://github.com/prostojs/mate/commit/f75b94d3e24b1c42f25d4e1f151a5afdf8692313))
+
+
+
 ## [0.1.6](https://github.com/prostojs/mate/compare/v0.1.5...v0.1.6) (2022-09-27)
 
 
