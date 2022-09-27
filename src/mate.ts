@@ -145,7 +145,7 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
             for (const d of decorators) {
                 d(target, propKey, descriptor as TypedPropertyDescriptor<TAny>)
             }
-        }) as MethodDecorator & ClassDecorator & ParameterDecorator
+        }) as MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
     }
     
     decorate<R extends T = T, RP = R['params'][0]>(
