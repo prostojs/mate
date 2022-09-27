@@ -1,6 +1,6 @@
 {
   "name": "@prostojs/mate",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "MATE is TS Metadata Organizer",
   "main": "index.js",
   "module": "dist/mate.esm-bundler.js",

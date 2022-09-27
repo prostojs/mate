@@ -1,3 +1,12 @@
+## [0.1.3](https://github.com/prostojs/mate/compare/v0.1.2...v0.1.3) (2022-09-27)
+
+
+### Features
+
+* add support of property meta ([e62b104](https://github.com/prostojs/mate/commit/e62b104dd5053ef5a26e3f56b464e7d6a350f691))
+
+
+
 ## [0.1.2](https://github.com/prostojs/mate/compare/v0.1.1...v0.1.2) (2022-08-31)
 
 
