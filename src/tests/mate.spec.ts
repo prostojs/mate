@@ -5,6 +5,7 @@ import { getConstructor, isConstructor } from '../utils/helpers'
 describe('Mate', () => {
     const classMeta = mate.read(MateTestClass)
     const methodMeta = mate.read(MateTestClass, 'test')
+    const propertyMeta = mate.read(MateTestClass, 'param')
     const viaCBMeta = mate.read(MateTestClass, 'viaCB')
     const classMeta2 = mate.read(MateTestClass2)
     const methodMeta2 = mate.read(MateTestClass2, 'test')
@@ -49,6 +50,13 @@ describe('Mate', () => {
                     type: String,
                 },
             ],
+        })
+    })
+    it('must process property meta', () => {
+        console.log({ propertyMeta })
+        expect(propertyMeta).toEqual({
+            property: 'property value',
+            type: String,
         })
     })
     it('must properly add data metadata provided via callback', () => {

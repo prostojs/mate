@@ -146,24 +146,24 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
     
     decorate<R extends T = T, RP = R['params'][0]>(
         cb: ((meta: R & RP) => R & RP)
-    ): MethodDecorator & ClassDecorator & ParameterDecorator
+    ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
     
     decorate<R extends T = T, RP = R['params'][0]>(
         key:  keyof R | keyof RP | ((meta: R & RP) => R & RP),
         value: ((R & RP)[keyof R] & (R & RP)[keyof RP]) | undefined,
-    ): MethodDecorator & ClassDecorator & ParameterDecorator
+    ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
 
     decorate<R extends T = T, RP = R['params'][0]>(
         key:  keyof R | keyof RP | ((meta: R & RP) => R & RP),
         value: ((R & RP)[keyof R] & (R & RP)[keyof RP]) | undefined,
         isArray: boolean | undefined
-    ): MethodDecorator & ClassDecorator & ParameterDecorator
+    ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
     
     decorate<R extends T = T, RP = R['params'][0]>(
         key:  keyof R | keyof RP | ((meta: R & RP) => R & RP),
         value?: (R & RP)[keyof R] & (R & RP)[keyof RP],
         isArray?: boolean
-    ): MethodDecorator & ClassDecorator & ParameterDecorator {
+    ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator {
         return ((target: TObject, propKey: string | symbol, descriptor: TypedPropertyDescriptor<TAny> | number): void => {
             const args: TMergedDecoratorArgs = { 
                 target,
