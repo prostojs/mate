@@ -19,6 +19,7 @@ describe('Mate', () => {
                 'class value 1',
                 'class value 2',
             ],
+            fromProperty: ['toClass'],
             params: [
                 {
                     param: 'param a',
@@ -56,6 +57,17 @@ describe('Mate', () => {
         console.log({ propertyMeta })
         expect(propertyMeta).toEqual({
             property: 'property value',
+            type: String,
+        })
+        
+        class A {
+            @mate.decorate('propS', 'propS data')
+            s: string = ''
+        }
+        expect(mate.read(A, 's')).toEqual({
+            params: undefined,
+            propS: 'propS data',
+            returnType: undefined,
             type: String,
         })
     })

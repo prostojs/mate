@@ -136,7 +136,7 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
         return ownMeta
     }
 
-    apply(...decorators: (MethodDecorator & ClassDecorator & ParameterDecorator)[]) {
+    apply(...decorators: (MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator)[]) {
         return ((target: TObject, propKey: string | symbol, descriptor: TypedPropertyDescriptor<TAny> | number): void => {
             for (const d of decorators) {
                 d(target, propKey, descriptor as TypedPropertyDescriptor<TAny>)
@@ -156,23 +156,56 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
     decorate<R extends T = T, RP = R['params'][0]>(
         key:  keyof R | keyof RP | ((meta: R & RP) => R & RP),
         value: ((R & RP)[keyof R] & (R & RP)[keyof RP]) | undefined,
-        isArray: boolean | undefined
+        isArray: boolean | undefined,
+    ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
+
+    decorate<R extends T = T, RP = R['params'][0]>(
+        key:  keyof R | keyof RP | ((meta: R & RP) => R & RP),
+        value: ((R & RP)[keyof R] & (R & RP)[keyof RP]) | undefined,
+        isArray: boolean | undefined,
+        level: 'CLASS' | undefined,
     ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
     
     decorate<R extends T = T, RP = R['params'][0]>(
         key:  keyof R | keyof RP | ((meta: R & RP) => R & RP),
         value?: (R & RP)[keyof R] & (R & RP)[keyof RP],
-        isArray?: boolean
+        isArray?: boolean,
+        level?: 'CLASS',
     ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator {
         return ((target: TObject, propKey: string | symbol, descriptor: TypedPropertyDescriptor<TAny> | number): void => {
-            const args: TMergedDecoratorArgs = { 
+            const args: TMergedDecoratorArgs = level === 'CLASS' ? {
+                target,
+            } : { 
                 target,
                 propKey,
                 descriptor: typeof descriptor === 'number' ? undefined : descriptor,
                 index: typeof descriptor === 'number' ? descriptor : undefined,
             }
             this.set<R, RP>(args, key as keyof R, value, isArray)
-        }) as MethodDecorator & ClassDecorator & ParameterDecorator
+        }) as MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
+    }
+    
+    decorateClass<R extends T = T, RP = R['params'][0]>(
+        cb: ((meta: R & RP) => R & RP)
+    ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
+    
+    decorateClass<R extends T = T, RP = R['params'][0]>(
+        key:  keyof R | keyof RP | ((meta: R & RP) => R & RP),
+        value: ((R & RP)[keyof R] & (R & RP)[keyof RP]) | undefined,
+    ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
+
+    decorateClass<R extends T = T, RP = R['params'][0]>(
+        key:  keyof R | keyof RP | ((meta: R & RP) => R & RP),
+        value: ((R & RP)[keyof R] & (R & RP)[keyof RP]) | undefined,
+        isArray: boolean | undefined,
+    ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
+    
+    decorateClass<R extends T = T, RP = R['params'][0]>(
+        key:  keyof R | keyof RP | ((meta: R & RP) => R & RP),
+        value?: (R & RP)[keyof R] & (R & RP)[keyof RP],
+        isArray?: boolean,
+    ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator {
+        return this.decorate<R, RP>(key, value, isArray, 'CLASS')
     }
 }
 

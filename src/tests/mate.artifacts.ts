@@ -63,6 +63,7 @@ export class MateTestClass {
     }
 
     @mate.decorate('property', 'property value')
+    @mate.decorateClass('fromProperty', 'toClass', true)
     param: string = ''
 }
 
