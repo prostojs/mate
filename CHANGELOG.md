@@ -1,3 +1,12 @@
+## [0.1.4](https://github.com/prostojs/mate/compare/v0.1.3...v0.1.4) (2022-09-27)
+
+
+### Features
+
+* add decorateClass method ([29471c0](https://github.com/prostojs/mate/commit/29471c0a0a8a303a4602657f99d1b6ff1c9f3a0f))
+
+
+
 ## [0.1.3](https://github.com/prostojs/mate/compare/v0.1.2...v0.1.3) (2022-09-27)
 
 
