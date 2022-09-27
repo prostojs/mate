@@ -11,6 +11,7 @@ export interface TMergedDecoratorArgs {
     propKey?: string | symbol
     descriptor?: TypedPropertyDescriptor<TAny>
     index?: number
+    level?: 'CLASS' | 'PROPERTY'
 }
 
 export interface TProstoMetadata<TParams extends TProstoParamsMetadata = TProstoParamsMetadata> {
@@ -34,7 +35,7 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
 
     set<R extends T = T, RP = R['params'][0]>(
         args: TMergedDecoratorArgs,
-        cb: ((meta: R & RP) => R & RP),
+        cb: ((meta: R & RP, propKey?: string | symbol) => R & RP),
     ): void
 
     set<R extends T = T, RP = R['params'][0]>(
@@ -52,18 +53,21 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
 
     set<R extends T = T, RP = R['params'][0]>(
         args: TMergedDecoratorArgs,
-        key: keyof R | keyof RP | ((meta: R & RP) => R & RP),
+        key: keyof R | keyof RP | ((meta: R & RP, propKey?: string | symbol) => R & RP),
         value?: (R & RP)[keyof R] & (R & RP)[keyof RP],
         isArray?: boolean,
     ): void {
-        let meta: R = Reflect.getOwnMetadata(this.workspace, args.target, args.propKey as string) as R || {}
-        if (args.propKey && this.options.readReturnType && !meta.returnType) {
-            meta.returnType = Reflect.getOwnMetadata('design:returntype', args.target, args.propKey as string) as TFunction
+        const newArgs = args.level === 'CLASS' ? { target: args.target }
+            : args.level === 'PROPERTY' ? { target: args.target, propKey: args.propKey }
+                : args
+        let meta: R = Reflect.getOwnMetadata(this.workspace, newArgs.target, newArgs.propKey as string) as R || {}
+        if (newArgs.propKey && this.options.readReturnType && !meta.returnType) {
+            meta.returnType = Reflect.getOwnMetadata('design:returntype', newArgs.target, newArgs.propKey as string) as TFunction
         }
-        if (args.propKey && this.options.readType && !meta.type) {
-            meta.type = Reflect.getOwnMetadata('design:type', args.target, args.propKey as string) as TFunction
+        if (newArgs.propKey && this.options.readType && !meta.type) {
+            meta.type = Reflect.getOwnMetadata('design:type', newArgs.target, newArgs.propKey as string) as TFunction
         }
-        const { index } = args
+        const { index } = newArgs
         const cb = typeof key === 'function' ? key : undefined
         let data: R & RP = meta as R & RP
         if (!data.params) {
@@ -75,7 +79,7 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
                 type: undefined,
             }
             if (cb) {
-                data.params[index] = cb(data.params[index] as unknown as R &RP) as unknown as TProstoParamsMetadata
+                data.params[index] = cb(data.params[index] as unknown as R &RP, args.propKey) as unknown as TProstoParamsMetadata
             } else {
                 data = data.params[index] as unknown as (R & RP)
             }
@@ -93,15 +97,15 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
                 data[key] = value as (R & RP)[keyof R] & (R & RP)[keyof RP]
             }
         } else if (cb && typeof index !== 'number') {
-            meta = cb(data)
+            meta = cb(data, args.propKey)
         }
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         Reflect.defineMetadata(
             this.workspace,
             meta,
             // args.descriptor ? args.descriptor.value : args.target,
-            args.target,
-            args.propKey as string
+            newArgs.target,
+            newArgs.propKey as string
         )
     }
 
@@ -145,7 +149,7 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
     }
     
     decorate<R extends T = T, RP = R['params'][0]>(
-        cb: ((meta: R & RP) => R & RP)
+        cb: ((meta: R & RP, propKey?: string | symbol) => R & RP)
     ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
     
     decorate<R extends T = T, RP = R['params'][0]>(
@@ -163,30 +167,29 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
         key:  keyof R | keyof RP | ((meta: R & RP) => R & RP),
         value: ((R & RP)[keyof R] & (R & RP)[keyof RP]) | undefined,
         isArray: boolean | undefined,
-        level: 'CLASS' | undefined,
+        level: TMergedDecoratorArgs['level'],
     ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
     
     decorate<R extends T = T, RP = R['params'][0]>(
         key:  keyof R | keyof RP | ((meta: R & RP) => R & RP),
         value?: (R & RP)[keyof R] & (R & RP)[keyof RP],
         isArray?: boolean,
-        level?: 'CLASS',
+        level?: TMergedDecoratorArgs['level'],
     ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator {
         return ((target: TObject, propKey: string | symbol, descriptor: TypedPropertyDescriptor<TAny> | number): void => {
-            const args: TMergedDecoratorArgs = level === 'CLASS' ? {
-                target,
-            } : { 
+            const args: TMergedDecoratorArgs = { 
                 target,
                 propKey,
                 descriptor: typeof descriptor === 'number' ? undefined : descriptor,
                 index: typeof descriptor === 'number' ? descriptor : undefined,
+                level,
             }
             this.set<R, RP>(args, key as keyof R, value, isArray)
         }) as MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
     }
     
     decorateClass<R extends T = T, RP = R['params'][0]>(
-        cb: ((meta: R & RP) => R & RP)
+        cb: ((meta: R & RP, propKey?: string | symbol) => R & RP)
     ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
     
     decorateClass<R extends T = T, RP = R['params'][0]>(

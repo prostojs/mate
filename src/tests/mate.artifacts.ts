@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Mate, TProstoMetadata } from '..'
 
-export const mate = new Mate<{inherit?: boolean} & TProstoMetadata>('test', {
+export const mate = new Mate<{inherit?: boolean, fromPropertyCb?: string[]} & TProstoMetadata>('test', {
     readReturnType: true,
     readType: true,
     inherit(classMeta, prop, methodMeta) {
@@ -64,6 +64,11 @@ export class MateTestClass {
 
     @mate.decorate('property', 'property value')
     @mate.decorateClass('fromProperty', 'toClass', true)
+    @mate.decorateClass((meta, key) => {
+        meta.fromPropertyCb = meta.fromPropertyCb || []
+        meta.fromPropertyCb.push(key as string)
+        return meta
+    })
     param: string = ''
 }
 
