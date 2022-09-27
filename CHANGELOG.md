@@ -1,3 +1,12 @@
+## [0.1.6](https://github.com/prostojs/mate/compare/v0.1.5...v0.1.6) (2022-09-27)
+
+
+### Bug Fixes
+
+* fix type of apply method ([ddde68e](https://github.com/prostojs/mate/commit/ddde68e9d54794d320be8976567bdc6cfe40ece2))
+
+
+
 ## [0.1.5](https://github.com/prostojs/mate/compare/v0.1.4...v0.1.5) (2022-09-27)
 
 
