@@ -35,7 +35,7 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
 
     set<R extends T = T, RP = R['params'][0]>(
         args: TMergedDecoratorArgs,
-        cb: ((meta: R & RP, propKey?: string | symbol) => R & RP),
+        cb: ((meta: R & RP, propKey?: string | symbol, index?: number) => R & RP),
     ): void
 
     set<R extends T = T, RP = R['params'][0]>(
@@ -53,7 +53,7 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
 
     set<R extends T = T, RP = R['params'][0]>(
         args: TMergedDecoratorArgs,
-        key: keyof R | keyof RP | ((meta: R & RP, propKey?: string | symbol) => R & RP),
+        key: keyof R | keyof RP | ((meta: R & RP, propKey?: string | symbol, index?: number) => R & RP),
         value?: (R & RP)[keyof R] & (R & RP)[keyof RP],
         isArray?: boolean,
     ): void {
@@ -79,7 +79,7 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
                 type: undefined,
             }
             if (cb) {
-                data.params[index] = cb(data.params[index] as unknown as R &RP, args.propKey) as unknown as TProstoParamsMetadata
+                data.params[index] = cb(data.params[index] as unknown as R &RP, args.propKey, typeof index === 'number' ? index : undefined) as unknown as TProstoParamsMetadata
             } else {
                 data = data.params[index] as unknown as (R & RP)
             }
@@ -97,7 +97,7 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
                 data[key] = value as (R & RP)[keyof R] & (R & RP)[keyof RP]
             }
         } else if (cb && typeof index !== 'number') {
-            meta = cb(data, args.propKey)
+            meta = cb(data, args.propKey, typeof index === 'number' ? index : undefined)
         }
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         Reflect.defineMetadata(
@@ -109,7 +109,7 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
         )
     }
 
-    read<R extends T = T>(target: TFunction | TObject, propKey?: string | symbol): R | undefined {
+    read<R extends T = T>(target: TFunction | TObject, propKey?: string | symbol, index?: number): R | undefined {
         const isConstr = isConstructor(target)
         const constructor = isConstr ? target : getConstructor(target)
         const proto = constructor.prototype as TObject
@@ -149,7 +149,7 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
     }
     
     decorate<R extends T = T, RP = R['params'][0]>(
-        cb: ((meta: R & RP, propKey?: string | symbol) => R & RP)
+        cb: ((meta: R & RP, propKey?: string | symbol, index?: number) => R & RP)
     ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
     
     decorate<R extends T = T, RP = R['params'][0]>(
@@ -189,7 +189,7 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
     }
     
     decorateClass<R extends T = T, RP = R['params'][0]>(
-        cb: ((meta: R & RP, propKey?: string | symbol) => R & RP)
+        cb: ((meta: R & RP, propKey?: string | symbol, index?: number) => R & RP)
     ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
     
     decorateClass<R extends T = T, RP = R['params'][0]>(
