@@ -101,6 +101,7 @@ describe('Mate', () => {
             d1: 'v1',
             d2: 'v2',
             d3: 'v3',
+            arg1: { i: 0, key: 'test' },
             params: [{ type: String }],
         })
     })
@@ -110,7 +111,7 @@ describe('Mate', () => {
             d2: 'v2',
             d3: 'v3',
             method: 'method value',
-            params: [],
+            params: [ { type: Number }, { type: Boolean } ],
             returnType: undefined,
             type: Function,
         })
@@ -124,6 +125,7 @@ describe('Mate', () => {
             d2: 'v2',
             d3: 'v3',
             inherit: true,
+            arg1: { i: 0, key: 'test' },
             params: [],
         })
     })

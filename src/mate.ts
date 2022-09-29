@@ -71,7 +71,7 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
         const cb = typeof key === 'function' ? key : undefined
         let data: R & RP = meta as R & RP
         if (!data.params) {
-            data.params = (Reflect.getOwnMetadata('design:paramtypes', args.target, args.propKey as string) as TFunction[])?.map((f) => ({ type: f }))
+            data.params = (Reflect.getOwnMetadata('design:paramtypes', newArgs.target, newArgs.propKey as string) as TFunction[])?.map((f) => ({ type: f }))
         }
         if (typeof index === 'number') {
             data.params = data.params || []

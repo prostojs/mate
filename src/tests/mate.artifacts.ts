@@ -81,7 +81,10 @@ export class MateTestClass2 {
     @mate.decorate('method', 'method value')
     @Reflect.metadata('key', 'value')
     @Apply3
-    test() {
+    test(@mate.decorateClass((meta, key, i) => {
+        (meta as unknown as { arg1: unknown }).arg1 = { key, i }
+        return meta
+    }) arg1: number, arg2: boolean) {
         //
     }
 
