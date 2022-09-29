@@ -1,3 +1,12 @@
+## [0.1.8](https://github.com/prostojs/mate/compare/v0.1.7...v0.1.8) (2022-09-29)
+
+
+### Bug Fixes
+
+* fix pass index to cb of decorate ([6012110](https://github.com/prostojs/mate/commit/6012110a9a6364b8906359a2b33022af83e8714e))
+
+
+
 ## [0.1.7](https://github.com/prostojs/mate/compare/v0.1.6...v0.1.7) (2022-09-27)
 
 
