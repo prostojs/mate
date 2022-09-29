@@ -140,10 +140,10 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
         return ownMeta
     }
 
-    apply(...decorators: (MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator)[]) {
+    apply(...decorators: (MethodDecorator | ClassDecorator | ParameterDecorator | PropertyDecorator)[]) {
         return ((target: TObject, propKey: string | symbol, descriptor: TypedPropertyDescriptor<TAny> | number): void => {
             for (const d of decorators) {
-                d(target, propKey, descriptor as TypedPropertyDescriptor<TAny>)
+                (d as MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator)(target, propKey, descriptor as TypedPropertyDescriptor<TAny>)
             }
         }) as MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
     }
