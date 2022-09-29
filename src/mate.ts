@@ -79,7 +79,7 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
                 type: undefined,
             }
             if (cb) {
-                data.params[index] = cb(data.params[index] as unknown as R &RP, args.propKey, typeof index === 'number' ? index : undefined) as unknown as TProstoParamsMetadata
+                data.params[index] = cb(data.params[index] as unknown as R &RP, args.propKey, typeof args.index === 'number' ? args.index : undefined) as unknown as TProstoParamsMetadata
             } else {
                 data = data.params[index] as unknown as (R & RP)
             }
@@ -97,7 +97,7 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
                 data[key] = value as (R & RP)[keyof R] & (R & RP)[keyof RP]
             }
         } else if (cb && typeof index !== 'number') {
-            meta = cb(data, args.propKey, typeof index === 'number' ? index : undefined)
+            meta = cb(data, args.propKey, typeof args.index === 'number' ? args.index : undefined)
         }
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         Reflect.defineMetadata(
