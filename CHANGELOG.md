@@ -1,3 +1,12 @@
+## [0.1.10](https://github.com/prostojs/mate/compare/v0.1.9...v0.1.10) (2022-09-29)
+
+
+### Bug Fixes
+
+* fix params for decorateClass on param ([e3a9a3d](https://github.com/prostojs/mate/commit/e3a9a3dc427e9ca0585bd040c568c56813897660))
+
+
+
 ## [0.1.9](https://github.com/prostojs/mate/compare/v0.1.8...v0.1.9) (2022-09-29)
 
 
