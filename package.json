@@ -4,8 +4,6 @@
   "description": "MATE is TS Metadata Organizer",
   "main": "index.js",
   "module": "dist/mate.esm-bundler.js",
-  "unpkg": "dist/mate.global.prod.js",
-  "jsdelivr": "dist/mate.global.prod.js",
   "types": "dist/mate.d.ts",
   "files": [
     "index.js",
@@ -34,9 +32,7 @@
     "name": "ProstoMate",
     "formats": [
       "esm-bundler",
-      "esm-browser",
-      "cjs",
-      "global"
+      "cjs"
     ]
   },
   "dependencies": {},

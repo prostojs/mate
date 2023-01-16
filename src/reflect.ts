@@ -19,7 +19,6 @@
  */
 import { TFunction, TObject } from './types'
 import { getConstructor } from './utils/helpers'
-import { warn } from './utils/log'
 
 const classMetadata: Record<symbol, Record<symbol | string, unknown>> = {}
 const paramMetadata: Record<symbol, Record<symbol | string, unknown>> = {}
@@ -67,9 +66,9 @@ if (!root.Reflect) {
             isOriginalReflectMetadata = false
         }
     }
-    if (!isOriginalReflectMetadata) {
-        warn('A limited \'reflect-metadata\' implementation is used. In case of any issues include original \'reflect-metadata\' package and require it before any @prostojs/mate import.')
-    }
+    // if (!isOriginalReflectMetadata) {
+    //     warn('A limited \'reflect-metadata\' implementation is used. In case of any issues include original \'reflect-metadata\' package and require it before any @prostojs/mate import.')
+    // }
 }
 
 export const Reflect = _reflect
