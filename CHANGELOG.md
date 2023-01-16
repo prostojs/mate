@@ -1,3 +1,12 @@
+## [0.1.11](https://github.com/prostojs/mate/compare/v0.1.10...v0.1.11) (2023-01-16)
+
+
+### Bug Fixes
+
+* remove warning ([6ca27e6](https://github.com/prostojs/mate/commit/6ca27e6c6f9014c612e86d984e4ddfa5e8dd5862))
+
+
+
 ## [0.1.10](https://github.com/prostojs/mate/compare/v0.1.9...v0.1.10) (2022-09-29)
 
 
