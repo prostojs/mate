@@ -19,6 +19,7 @@ describe('Mate', () => {
                 'class value 1',
                 'class value 2',
             ],
+            properties: ['prop1', 'prop2', 'param'],
             fromProperty: ['toClass'],
             fromPropertyCb: ['param'],
             params: [

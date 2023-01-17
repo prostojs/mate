@@ -4,6 +4,7 @@ import { Mate, TProstoMetadata } from '..'
 export const mate = new Mate<{inherit?: boolean, fromPropertyCb?: string[]} & TProstoMetadata>('test', {
     readReturnType: true,
     readType: true,
+    collectPropKeys: true,
     inherit(classMeta, prop, methodMeta) {
         if (prop) {
             return !!methodMeta?.inherit || !!(classMeta?.inherit && !methodMeta)
@@ -28,6 +29,11 @@ export class MateTestClass {
     ) {
         //
     }
+
+    @mate.decorate('prop1D', 'p1val')
+    prop1?: string
+    @mate.decorate('prop2D', 'p2val')
+    prop2?: number
 
     @mate.decorate('method', 'method value')
     @mate.decorate('methodArray', 'method value1', true)

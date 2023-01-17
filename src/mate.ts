@@ -16,6 +16,7 @@ export interface TMergedDecoratorArgs {
 
 export interface TProstoMetadata<TParams extends TProstoParamsMetadata = TProstoParamsMetadata> {
     params: TParams[]
+    properties?: (string | symbol)[]
     type?: TFunction
     returnType?: TFunction
 }
@@ -27,6 +28,7 @@ export interface TProstoParamsMetadata {
 export interface TMateOptions<T extends TProstoMetadata = TProstoMetadata> {
     readReturnType?: boolean
     readType?: boolean
+    collectPropKeys?: boolean
     inherit?: boolean | ((classMeta: T, propKey?: string, methodMeta?: T, ) => boolean)
 }
 
@@ -83,6 +85,18 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
             } else {
                 data = data.params[index] as unknown as (R & RP)
             }
+        } else if (!index && !args.descriptor && args.propKey && this.options.collectPropKeys && args.level !== 'CLASS') {
+            this.set(
+                { ...args, level: 'CLASS' },
+                (meta) => {
+                    if (!meta.properties) {
+                        meta.properties = [args.propKey as string]
+                    } else if (!meta.properties.includes(args.propKey as string)) {
+                        meta.properties.push(args.propKey as string)
+                    }
+                    return meta
+                }
+            )
         }
         if (typeof key !== 'function') {
             if (isArray) {
@@ -187,6 +201,37 @@ export class Mate<T extends TProstoMetadata = TProstoMetadata> {
             this.set<R, RP>(args, key as keyof R, value, isArray)
         }) as MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
     }
+
+    // decorateSome<R extends T = T, RP = R['params'][0]>(
+    //     options: { class?: Parameters<Mate<T>['decorate']>, method?: Parameters<Mate<T>['decorate']>, prop?: Parameters<Mate<T>['decorate']>, param?: Parameters<Mate<T>['decorate']> }
+    // ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator {
+    //     return ((target: TObject, propKey: string | symbol, descriptor: TypedPropertyDescriptor<TAny> | number): void => {
+    //         const args: TMergedDecoratorArgs = { 
+    //             target,
+    //             propKey,
+    //             descriptor: typeof descriptor === 'number' ? undefined : descriptor,
+    //             index: typeof descriptor === 'number' ? descriptor : undefined,
+    //         }
+    //         if (!args.propKey) {
+    //             // class
+    //             if (!options.class) {
+    //                 /* istanbul ignore next line */
+    //                 panic('Decorator used for "class" but not supported for "class"') 
+    //             } else {
+    //                 this.set(args, options.class[0] as keyof R, options.class[1])
+    //             }
+    //         } else if (typeof args.index === 'number') {
+    //             // param
+    //             if (!options.param) {
+    //                 /* istanbul ignore next line */
+    //                 panic('Decorator used for "param" but not supported for "param"')
+    //             } else {
+    //                 this.set(args, options.param[0] as keyof R, options.param[1])
+    //             }
+    //         }
+            
+    //     }) as MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator        
+    // }
     
     decorateClass<R extends T = T, RP = R['params'][0]>(
         cb: ((meta: R & RP, propKey?: string | symbol, index?: number) => R & RP)
