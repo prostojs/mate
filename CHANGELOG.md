@@ -1,3 +1,12 @@
+## [0.1.12](https://github.com/prostojs/mate/compare/v0.1.11...v0.1.12) (2023-01-17)
+
+
+### Features
+
+* add properties array ([a6f12f2](https://github.com/prostojs/mate/commit/a6f12f2b14bfa5e9aa70b5ed2522ab445ea3db64))
+
+
+
 ## [0.1.11](https://github.com/prostojs/mate/compare/v0.1.10...v0.1.11) (2023-01-16)
 
 
