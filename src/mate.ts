@@ -156,7 +156,6 @@ export class Mate<TClass extends TObject = TEmpty, TProp extends TObject = TEmpt
                 if (typeof parent === 'function' && parent !== fnProto && parent !== constructor) {
                     const inheritedMeta = this.read<TMeta>(parent, propKey) || {} as TMeta
                     const ownParams = ownMeta?.params
-                    console.log({ownParams, inheritedMeta})
                     ownMeta = { ...inheritedMeta, ...ownMeta } as unknown as TMeta
                     if (typeof propKey === 'string' && ownParams && inheritedMeta?.params) {
                         for (let i = 0; i < ownParams.length; i++) {
