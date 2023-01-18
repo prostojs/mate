@@ -1,3 +1,12 @@
+## [0.1.13](https://github.com/prostojs/mate/compare/v0.1.12...v0.1.13) (2023-01-18)
+
+
+### Features
+
+* better types and inheritance ([65faf0f](https://github.com/prostojs/mate/commit/65faf0f24c0fa04973e5ca88f4ae0e2ae2e849c6))
+
+
+
 ## [0.1.12](https://github.com/prostojs/mate/compare/v0.1.11...v0.1.12) (2023-01-17)
 
 
