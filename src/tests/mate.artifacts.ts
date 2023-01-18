@@ -1,22 +1,67 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Mate, TProstoMetadata } from '..'
+import { Mate } from '..'
 
-export const mate = new Mate<{inherit?: boolean, fromPropertyCb?: string[]} & TProstoMetadata>('test', {
+interface TClass {
+    inherit?: boolean
+    fromPropertyCb?: string[]
+    d1?: string
+    d2?: string
+    d3?: string
+    multi?: string
+    class?: string
+    classArray?: string[]
+    fromProperty?: string
+}
+
+interface TProp {
+    inherit?: boolean
+    fromPropertyCb?: string[]
+    prop1D?: string
+    prop2D?: string
+    method?: string
+    methodArray?: string[]
+    method2?: string
+    property?: string
+    empty?: string
+}
+
+interface TParam {
+    inherit?: boolean
+    propS?: string
+    param?: string
+    param1?: string
+    param2?: string
+    paramArray?: string[]
+}
+
+export const mate = new Mate<TClass, TProp, TParam>('test', {
     readReturnType: true,
     readType: true,
     collectPropKeys: true,
-    inherit(classMeta, prop, methodMeta) {
-        if (prop) {
-            return !!methodMeta?.inherit || !!(classMeta?.inherit && !methodMeta)
+    inherit(classMeta, targetMeta, level, prop) {
+        if (level === 'CLASS') {
+            return !!classMeta?.inherit
         }
-        return !!classMeta?.inherit
+        if (level === 'PROP') {
+            return !!targetMeta?.inherit || !!(classMeta?.inherit && !targetMeta)
+        }
+        return !!targetMeta?.inherit
     },
 })
 const D1 = mate.decorate('d1', 'v1')
 const D2 = mate.decorate('d2', 'v2')
 const D3 = mate.decorate('d3', 'v3')
 const Apply3 = mate.apply(D1, D2, D3)
+const Multi = mate.decorateConditional((level) => {
+    switch (level) {
+        case 'CLASS': return mate.decorate('multi', 'for CLASS')
+        case 'PROP': return mate.decorate('multi', 'for PROP')
+        case 'METHOD': return mate.decorate('multi', 'for METHOD')
+        case 'PARAM': return mate.decorate('multi', 'for PARAM')
+    }
+})
 
+@Multi
 @mate.decorate('class', 'class value')
 @mate.decorate('classArray', 'class value 1', true)
 @mate.decorate('classArray', 'class value 2', true)
@@ -30,15 +75,19 @@ export class MateTestClass {
         //
     }
 
+    @Multi
     @mate.decorate('prop1D', 'p1val')
     prop1?: string
+
     @mate.decorate('prop2D', 'p2val')
     prop2?: number
 
+    @Multi
     @mate.decorate('method', 'method value')
     @mate.decorate('methodArray', 'method value1', true)
     @mate.decorate('methodArray', 'method value2', true)
     test(
+        @Multi
         @mate.decorate('param', 'param b')
         @mate.decorate('paramArray', 'param b1', true)
         @mate.decorate('paramArray', 'param b2', true)
@@ -70,12 +119,17 @@ export class MateTestClass {
 
     @mate.decorate('property', 'property value')
     @mate.decorateClass('fromProperty', 'toClass', true)
-    @mate.decorateClass((meta, key) => {
+    @mate.decorateClass((meta, level, key) => {
         meta.fromPropertyCb = meta.fromPropertyCb || []
         meta.fromPropertyCb.push(key as string)
         return meta
     })
     param: string = ''
+
+    @mate.decorate('empty', 'test')
+    empty() {
+        //
+    }
 }
 
 @Apply3
@@ -87,7 +141,7 @@ export class MateTestClass2 {
     @mate.decorate('method', 'method value')
     @Reflect.metadata('key', 'value')
     @Apply3
-    test(@mate.decorateClass((meta, key, i) => {
+    test(@mate.decorateClass((meta, level, key, i) => {
         (meta as unknown as { arg1: unknown }).arg1 = { key, i }
         return meta
     }) arg1: number, arg2: boolean) {
@@ -96,7 +150,7 @@ export class MateTestClass2 {
 
     @mate.decorate('method', 'method from class 2')
     @mate.decorate('method2', 'method from class 2')
-    toOverwriteMeta() {
+    toOverwriteMeta(arg: string) {
         //
     }
 }

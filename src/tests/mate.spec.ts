@@ -4,6 +4,8 @@ import { getConstructor, isConstructor } from '../utils/helpers'
 
 describe('Mate', () => {
     const classMeta = mate.read(MateTestClass)
+    const propMeta = mate.read(MateTestClass, 'prop1')
+    const emptyMeta = mate.read(MateTestClass, 'empty')
     const methodMeta = mate.read(MateTestClass, 'test')
     const propertyMeta = mate.read(MateTestClass, 'param')
     const viaCBMeta = mate.read(MateTestClass, 'viaCB')
@@ -14,6 +16,7 @@ describe('Mate', () => {
     const methodMeta3test2 = mate.read(MateTestClass3, 'test2')
     it('must process class meta', () => {
         expect(classMeta).toEqual({
+            multi: 'for CLASS',
             class: 'class value',
             classArray: [
                 'class value 1',
@@ -33,9 +36,22 @@ describe('Mate', () => {
                 },
             ],
         })
+        expect(propMeta).toEqual({
+            multi: 'for PROP',
+            prop1D: 'p1val',
+            type: String,
+            params: undefined,
+        })
+        expect(emptyMeta).toEqual({
+            empty: 'test',
+            params: [],
+            returnType: undefined,
+            type: Function,
+        })
     })
     it('must process method meta', () => {
         expect(methodMeta).toEqual({
+            multi: 'for METHOD',
             method: 'method value',
             methodArray: [
                 'method value1',
@@ -45,6 +61,7 @@ describe('Mate', () => {
             type: Function,
             params: [
                 {
+                    multi: 'for PARAM',
                     param: 'param b',
                     paramArray: [
                         'param b1',
@@ -136,7 +153,7 @@ describe('Mate', () => {
             d2: 'v2',
             d3: 'v3',
             method: 'method value',
-            params: undefined,
+            params: [{ type: Number }, { type: Boolean }],
             returnType: undefined,
             type: Function,
         })
@@ -145,6 +162,15 @@ describe('Mate', () => {
         expect(methodMeta3test2).toEqual({
             method: 'method test2',
             params: [],
+            returnType: undefined,
+            type: Function,
+        })
+        expect(mate.read(MateTestClass2, 'toOverwriteMeta')).toEqual({
+            method: 'method from class 2',
+            method2: 'method from class 2',
+            params: [{
+                type: String,
+            }],
             returnType: undefined,
             type: Function,
         })
