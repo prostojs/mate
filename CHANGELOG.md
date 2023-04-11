@@ -1,3 +1,12 @@
+## [0.1.14](https://github.com/prostojs/mate/compare/v0.1.13...v0.1.14) (2023-04-11)
+
+
+### Features
+
+* add logger ([3677eb7](https://github.com/prostojs/mate/commit/3677eb79d0843fa0c9cd001333fc95e02b59b90d))
+
+
+
 ## [0.1.13](https://github.com/prostojs/mate/compare/v0.1.12...v0.1.13) (2023-01-18)
 
 
