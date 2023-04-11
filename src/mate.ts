@@ -1,5 +1,4 @@
 import { Reflect as _reflect } from './reflect'
-import { panic } from './utils/panic'
 import { TAny, TFunction, TObject } from'./types'
 import { getConstructor, isConstructor } from './utils/helpers'
 
@@ -30,7 +29,10 @@ export interface TMateClassMeta {
     returnType?: TFunction
 }
 
+interface TConsoleBase { error: ((...args: any) => void) }
+
 export interface TMateOptions<TClass extends TObject = TEmpty, TProp extends TObject = TEmpty, TParam extends TObject = TEmpty> {
+    logger?: TConsoleBase
     readReturnType?: boolean
     readType?: boolean
     collectPropKeys?: boolean
@@ -40,7 +42,11 @@ export interface TMateOptions<TClass extends TObject = TEmpty, TProp extends TOb
 interface TEmpty {}
 
 export class Mate<TClass extends TObject = TEmpty, TProp extends TObject = TEmpty, TParam extends TObject = TEmpty> {
-    constructor(protected workspace: string, protected options: TMateOptions<TClass, TProp, TParam> = {}) {}
+    protected logger: TConsoleBase
+
+    constructor(protected workspace: string, protected options: TMateOptions<TClass, TProp, TParam> = {}) {
+        this.logger = options.logger || console
+    }
 
     set<TMeta extends TObject = Partial<TClass & TProp & TParam>>(
         args: TMergedDecoratorArgs,
@@ -113,7 +119,7 @@ export class Mate<TClass extends TObject = TEmpty, TProp extends TObject = TEmpt
                 const newArray = (data[key] || []) as unknown[]
                 if (!Array.isArray(newArray)) {
                     /* istanbul ignore next line */
-                    panic('Mate.add (isArray=true) called for non-array metadata')
+                    this.logger.error('Mate.add (isArray=true) called for non-array metadata')
                 }
                 newArray.unshift(value)
                 data[key] = newArray as TMeta[TKey]
