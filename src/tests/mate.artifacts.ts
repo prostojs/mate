@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Mate } from '..'
+import { Mate, TMateParamMeta } from '..'
 
 interface TClass {
     inherit?: boolean
@@ -13,7 +13,7 @@ interface TClass {
     fromProperty?: string
 }
 
-interface TProp {
+interface TProp<TParam> {
     inherit?: boolean
     fromPropertyCb?: string[]
     prop1D?: string
@@ -23,6 +23,7 @@ interface TProp {
     method2?: string
     property?: string
     empty?: string
+    params: (TMateParamMeta & TParam)[]
 }
 
 interface TParam {
@@ -34,7 +35,7 @@ interface TParam {
     paramArray?: string[]
 }
 
-export const mate = new Mate<TClass, TProp, TParam>('test', {
+export const mate = new Mate<TClass, TProp<TParam>>('test', {
     readReturnType: true,
     readType: true,
     collectPropKeys: true,
