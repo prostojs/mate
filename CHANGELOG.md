@@ -1,3 +1,12 @@
+## [0.2.1](https://github.com/prostojs/mate/compare/v0.2.0...v0.2.1) (2023-05-31)
+
+
+### Bug Fixes
+
+* improve generic types ([3371c8f](https://github.com/prostojs/mate/commit/3371c8f4228cbbbc20989ae30cb9ee5854717c3b))
+
+
+
 # [0.2.0](https://github.com/prostojs/mate/compare/v0.1.14...v0.2.0) (2023-05-31)
 
 
