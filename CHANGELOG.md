@@ -1,3 +1,12 @@
+# [0.2.0](https://github.com/prostojs/mate/compare/v0.1.14...v0.2.0) (2023-05-31)
+
+
+### Features
+
+* improved generic types ([eaf9e4b](https://github.com/prostojs/mate/commit/eaf9e4b509833302888caf85dd793a8ef0840cff))
+
+
+
 ## [0.1.14](https://github.com/prostojs/mate/compare/v0.1.13...v0.1.14) (2023-04-11)
 
 
