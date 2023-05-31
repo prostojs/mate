@@ -23,28 +23,29 @@ export interface TMatePropMeta<TParam extends TObject = TEmpty> {
     params?: (TParam & TMateParamMeta)[]
 }
 
-export interface TMateClassMeta {
+export interface TMateClassMeta<TParam> {
     properties?: (string | symbol)[]
     type?: TFunction
     returnType?: TFunction
+    params?: (TParam & TMateParamMeta)[]
 }
 
-type TCommonMate<TParam extends TObject> = TMateClassMeta & TMatePropMeta<TParam>
-type TCommonMateWithParam<TParam extends TObject> = TMateClassMeta & TMatePropMeta<TParam> & TParam
+type TCommonMate<TParam extends TObject> = TMateClassMeta<TParam> & TMatePropMeta<TParam>
+type TCommonMateWithParam<TParam extends TObject> = TMateClassMeta<TParam> & TMatePropMeta<TParam> & TParam
 
 interface TConsoleBase { error: ((...args: any) => void) }
 
-export interface TMateOptions<TClass extends TObject = TMateClassMeta, TProp extends { params: TMateParamMeta[] } = Required<TMatePropMeta<TMateParamMeta>>> {
+export interface TMateOptions<TClass extends TObject = TMateClassMeta<TMateParamMeta>, TProp extends { params: TMateParamMeta[] } = Required<TMatePropMeta<TMateParamMeta>>> {
     logger?: TConsoleBase
     readReturnType?: boolean
     readType?: boolean
     collectPropKeys?: boolean
-    inherit?: boolean | ((classMeta: TClass & TMateClassMeta, targetMeta: (TMatePropMeta<TProp['params'][0]> & TProp) | (TMateParamMeta & TProp['params'][0]), level: 'CLASS' | 'PROP' | 'PARAM', key?: string) => boolean)
+    inherit?: boolean | ((classMeta: TClass & TMateClassMeta<TMateParamMeta>, targetMeta: (TMatePropMeta<TProp['params'][0]> & TProp) | (TMateParamMeta & TProp['params'][0]), level: 'CLASS' | 'PROP' | 'PARAM', key?: string) => boolean)
 }
 
 interface TEmpty {}
 
-export class Mate<TClass extends TObject = TMateClassMeta, TProp extends { params: TMateParamMeta[] } = Required<TMatePropMeta<TMateParamMeta>>> {
+export class Mate<TClass extends TObject = TMateClassMeta<TMateParamMeta>, TProp extends { params: TMateParamMeta[] } = Required<TMatePropMeta<TMateParamMeta>>> {
     protected logger: TConsoleBase
 
     constructor(protected workspace: string, protected options: TMateOptions<TClass, TProp> = {}) {
@@ -105,7 +106,7 @@ export class Mate<TClass extends TObject = TMateClassMeta, TProp extends { param
                 data = data.params[index] as TT
             }
         } else if (!index && !args.descriptor && args.propKey && this.options.collectPropKeys && args.level !== 'CLASS') {
-            this.set<TMateClassMeta>(
+            this.set<TMateClassMeta<TMateParamMeta>>(
                 { ...args, level: 'CLASS' },
                 (meta) => {
                     if (!meta.properties) {
@@ -141,7 +142,7 @@ export class Mate<TClass extends TObject = TMateClassMeta, TProp extends { param
         )
     }
 
-    read<T = TClass & TProp & TCommonMate<TProp['params'][0]>>(target: TFunction | TObject, propKey?: string | symbol) {
+    read<PK extends PropertyKey | undefined>(target: TFunction | TObject, propKey?: PK): PK extends PropertyKey ? TClass & TProp & TCommonMate<TProp['params'][0]> : TClass {
         const isConstr = isConstructor(target)
         const constructor = isConstr ? target : getConstructor(target)
         const proto = constructor.prototype as TObject
@@ -156,7 +157,7 @@ export class Mate<TClass extends TObject = TMateClassMeta, TProp extends { param
             let shouldInherit = this.options.inherit as boolean
             if (inheritFn) {
                 if (typeof propKey === 'string') {
-                    const classMeta = Reflect.getOwnMetadata(this.workspace, constructor) as TClass & TMateClassMeta
+                    const classMeta = Reflect.getOwnMetadata(this.workspace, constructor) as TClass & TMateClassMeta<TMateParamMeta>
                     shouldInherit = inheritFn(classMeta, ownMeta as unknown as TProp, 'PROP', propKey)
                 } else {
                     shouldInherit = inheritFn(ownMeta as unknown as TClass, ownMeta as unknown as TProp, 'CLASS')
@@ -165,7 +166,7 @@ export class Mate<TClass extends TObject = TMateClassMeta, TProp extends { param
             if (shouldInherit) {
                 const parent = Object.getPrototypeOf(constructor) as TFunction
                 if (typeof parent === 'function' && parent !== fnProto && parent !== constructor) {
-                    const inheritedMeta = this.read<TT>(parent, propKey) || {} as TT
+                    const inheritedMeta = (this.read(parent, propKey) || {}) as TT
                     const ownParams = ownMeta?.params
                     ownMeta = { ...inheritedMeta, ...ownMeta } as TT
                     if (typeof propKey === 'string' && ownParams && inheritedMeta?.params) {
@@ -184,7 +185,7 @@ export class Mate<TClass extends TObject = TMateClassMeta, TProp extends { param
                 }
             }
         }
-        return ownMeta as (TT | undefined)
+        return ownMeta
     }
 
     apply(...decorators: (MethodDecorator | ClassDecorator | ParameterDecorator | PropertyDecorator)[]) {

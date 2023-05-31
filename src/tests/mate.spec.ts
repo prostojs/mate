@@ -14,6 +14,7 @@ describe('Mate', () => {
     const classMeta3 = mate.read(MateTestClass3)
     const methodMeta3test = mate.read(MateTestClass3, 'test')
     const methodMeta3test2 = mate.read(MateTestClass3, 'test2')
+
     it('must process class meta', () => {
         expect(classMeta).toEqual({
             multi: 'for CLASS',
