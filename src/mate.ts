@@ -142,7 +142,7 @@ export class Mate<TClass extends TObject = TMateClassMeta<TMateParamMeta>, TProp
         )
     }
 
-    read<PK extends PropertyKey | undefined>(target: TFunction | TObject, propKey?: PK): PK extends PropertyKey ? TClass & TProp & TCommonMate<TProp['params'][0]> : TClass {
+    read<PK>(target: TFunction | TObject, propKey?: PK): PK extends PropertyKey ? (TClass & TProp & TCommonMate<TProp['params'][0]> | undefined) : TClass | undefined {
         const isConstr = isConstructor(target)
         const constructor = isConstr ? target : getConstructor(target)
         const proto = constructor.prototype as TObject

@@ -20,8 +20,10 @@
 import { TFunction, TObject } from './types'
 import { getConstructor } from './utils/helpers'
 
-const classMetadata: Record<symbol, Record<symbol | string, unknown>> = {}
-const paramMetadata: Record<symbol, Record<symbol | string, unknown>> = {}
+// eslint-disable-next-line @typescript-eslint/ban-types
+const classMetadata = new WeakMap<object, Record<string, unknown>>()
+// eslint-disable-next-line @typescript-eslint/ban-types
+const paramMetadata = new WeakMap<object, Record<string, unknown>>()
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const root = typeof global === 'object' ? global : typeof self === 'object' ? self : {}
@@ -29,10 +31,20 @@ const root = typeof global === 'object' ? global : typeof self === 'object' ? se
 function getMetaObject(target: TObject | TFunction, prop?: string | symbol): Record<symbol | string, unknown> {
     const isParam = typeof prop !== 'undefined'
     const metadata = isParam ? paramMetadata : classMetadata
-    const targetKey = Symbol.for(getConstructor(target) as unknown as string)
-    let meta = metadata[targetKey] = metadata[targetKey] || {}
-    if (isParam) meta = (meta[prop] = meta[prop] || {}) as Record<string | symbol, unknown>
-    return meta as typeof classMetadata
+    const targetKey = getConstructor(target)
+    let meta = metadata.get(targetKey)
+    if (!meta) {
+        meta = {} as Record<string, unknown>
+        metadata.set(targetKey, meta)
+    }
+    if (isParam) {
+        meta = (meta[prop as keyof typeof meta] =
+            meta[prop as keyof typeof meta] || {}) as Record<
+            string | symbol,
+            unknown
+        >
+    }
+    return meta
 }
 
 const _reflect = {
