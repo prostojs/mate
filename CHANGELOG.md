@@ -1,3 +1,12 @@
+# [0.3.0](https://github.com/prostojs/mate/compare/v0.2.1...v0.3.0) (2024-01-26)
+
+
+### Bug Fixes
+
+* fix types; switch to weak maps ([6b6a287](https://github.com/prostojs/mate/commit/6b6a28721ee69baa0174bc159dbe4cedb8043046))
+
+
+
 ## [0.2.1](https://github.com/prostojs/mate/compare/v0.2.0...v0.2.1) (2023-05-31)
 
 
