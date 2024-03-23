@@ -1,3 +1,12 @@
+## [0.3.2](https://github.com/prostojs/mate/compare/v0.3.1...v0.3.2) (2024-03-23)
+
+
+### Bug Fixes
+
+* fix read error ([c9760de](https://github.com/prostojs/mate/commit/c9760de3c3a1e7443dd2b42da4cd4d49d3247e37))
+
+
+
 ## [0.3.1](https://github.com/prostojs/mate/compare/v0.3.0...v0.3.1) (2024-03-23)
 
 
