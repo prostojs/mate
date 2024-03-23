@@ -1,3 +1,12 @@
+## [0.3.1](https://github.com/prostojs/mate/compare/v0.3.0...v0.3.1) (2024-03-23)
+
+
+### Features
+
+* add contrructor params inheritance ([b6dbe12](https://github.com/prostojs/mate/commit/b6dbe1298481a8a4b9d9eac28f040cadcd742c76))
+
+
+
 # [0.3.0](https://github.com/prostojs/mate/compare/v0.2.1...v0.3.0) (2024-01-26)
 
 
