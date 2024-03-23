@@ -1,5 +1,5 @@
 import { Mate } from '../mate'
-import { MateTestClass, MateTestClass2, MateTestClass3, mate, MateTestClass4 } from './mate.artifacts'
+import { MateTestClass, MateTestClass2, MateTestClass3, mate, MateTestClass4, MateTestParentClass, MateTestChildClass, MateTestChildClass2 } from './mate.artifacts'
 import { getConstructor, isConstructor } from '../utils/helpers'
 
 describe('Mate', () => {
@@ -240,4 +240,24 @@ describe('helpers/isConstructor', () => {
     //     const fn = function(){/** */}
     //     expect(isConstructor(fn)).toBe(false)
     // })
+})
+
+describe('constructor params inheritence', () => {
+    it('must inherit construtor params from parent class', () => {
+        const parentMeta = mate.read(MateTestParentClass)
+        const childMeta = mate.read(MateTestChildClass)
+        expect(parentMeta?.params).toBeDefined()
+        expect(parentMeta?.params).toHaveLength(1)
+        expect(parentMeta?.params).toEqual(childMeta?.params)
+    })
+    it('must respect overriden construtor params', () => {
+        const parentMeta = mate.read(MateTestParentClass)
+        const childMeta = mate.read(MateTestChildClass2)
+        expect(parentMeta?.params).toBeDefined()
+        expect(parentMeta?.params).toHaveLength(1)
+        expect(parentMeta?.params?.[0]?.type).toBe(String)
+        expect(childMeta?.params).toBeDefined()
+        expect(childMeta?.params).toHaveLength(1)
+        expect(childMeta?.params?.[0]?.type).toBe(Number)
+    })
 })

@@ -191,3 +191,18 @@ export class MateTestClass4 extends MateTestClass2 {
         //
     }
 }
+
+@mate.decorate('inherit', false)
+export class MateTestParentClass {
+    constructor(public a: string) {}
+}
+
+@mate.decorate('inherit', false)
+export class MateTestChildClass extends MateTestParentClass {}
+
+@mate.decorate('inherit', false)
+export class MateTestChildClass2 extends MateTestParentClass {
+    constructor(public b: number) {
+        super(`Number ${b}`)
+    }
+}

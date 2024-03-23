@@ -152,28 +152,80 @@ export class Mate<TClass extends TObject = TMateClassMeta<TMateParamMeta>, TProp
             typeof propKey === 'string' ? proto : constructor,
             propKey as string
         ) as TT
+        if (propKey === undefined && ownMeta.params === undefined) {
+            const parent = Object.getPrototypeOf(
+                constructor,
+            ) as TFunction
+            if (
+                typeof parent === 'function' &&
+                        parent !== fnProto &&
+                        parent !== constructor
+            ) {
+                ownMeta.params = (this.read(parent) as { params: [] })?.params
+            }
+        }
         if (this.options.inherit) {
-            const inheritFn = typeof this.options.inherit === 'function' ? this.options.inherit : undefined
+            const inheritFn =
+                    typeof this.options.inherit === 'function'
+                        ? this.options.inherit
+                        : undefined
             let shouldInherit = this.options.inherit as boolean
             if (inheritFn) {
                 if (typeof propKey === 'string') {
-                    const classMeta = Reflect.getOwnMetadata(this.workspace, constructor) as TClass & TMateClassMeta<TMateParamMeta>
-                    shouldInherit = inheritFn(classMeta, ownMeta as unknown as TProp, 'PROP', propKey)
+                    const classMeta = Reflect.getOwnMetadata(
+                        this.workspace,
+                        constructor,
+                    ) as TClass & TMateClassMeta<TMateParamMeta>
+                    shouldInherit = inheritFn(
+                        classMeta,
+                            ownMeta as unknown as TProp,
+                            'PROP',
+                            propKey,
+                    )
                 } else {
-                    shouldInherit = inheritFn(ownMeta as unknown as TClass, ownMeta as unknown as TProp, 'CLASS')
+                    shouldInherit = inheritFn(
+                            ownMeta as unknown as TClass,
+                            ownMeta as unknown as TProp,
+                            'CLASS',
+                    )
                 }
             }
             if (shouldInherit) {
-                const parent = Object.getPrototypeOf(constructor) as TFunction
-                if (typeof parent === 'function' && parent !== fnProto && parent !== constructor) {
-                    const inheritedMeta = (this.read(parent, propKey) || {}) as TT
+                const parent = Object.getPrototypeOf(
+                    constructor,
+                ) as TFunction
+                if (
+                    typeof parent === 'function' &&
+                        parent !== fnProto &&
+                        parent !== constructor
+                ) {
+                    const inheritedMeta = (this.read(parent, propKey) ||
+                            {}) as TT
                     const ownParams = ownMeta?.params
                     ownMeta = { ...inheritedMeta, ...ownMeta } as TT
-                    if (typeof propKey === 'string' && ownParams && inheritedMeta?.params) {
+                    if (
+                        typeof propKey === 'string' &&
+                            ownParams &&
+                            inheritedMeta?.params
+                    ) {
                         for (let i = 0; i < ownParams.length; i++) {
-                            if (typeof inheritedMeta?.params[i] !== 'undefined') {
+                            if (
+                                typeof inheritedMeta?.params[i] !==
+                                    'undefined'
+                            ) {
                                 const ownParam = ownParams[i]
-                                if (ownMeta.params && inheritFn && inheritFn(ownMeta as unknown as TClass, ownParam as unknown as TProp, 'PARAM', typeof propKey === 'string' ? propKey : undefined)) {
+                                if (
+                                    ownMeta.params &&
+                                        inheritFn &&
+                                        inheritFn(
+                                            ownMeta as unknown as TClass,
+                                            ownParam as unknown as TProp,
+                                            'PARAM',
+                                            typeof propKey === 'string'
+                                                ? propKey
+                                                : undefined,
+                                        )
+                                ) {
                                     ownMeta.params[i] = {
                                         ...inheritedMeta?.params[i],
                                         ...ownParams[i],
