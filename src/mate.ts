@@ -152,14 +152,12 @@ export class Mate<TClass extends TObject = TMateClassMeta<TMateParamMeta>, TProp
             typeof propKey === 'string' ? proto : constructor,
             propKey as string
         ) as TT
-        if (propKey === undefined && ownMeta.params === undefined) {
-            const parent = Object.getPrototypeOf(
-                constructor,
-            ) as TFunction
+        if (ownMeta && propKey === undefined && ownMeta.params === undefined) {
+            const parent = Object.getPrototypeOf(constructor) as TFunction
             if (
                 typeof parent === 'function' &&
-                        parent !== fnProto &&
-                        parent !== constructor
+                parent !== fnProto &&
+                parent !== constructor
             ) {
                 ownMeta.params = (this.read(parent) as { params: [] })?.params
             }
