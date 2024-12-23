@@ -21,9 +21,9 @@ import { TFunction, TObject } from './types'
 import { getConstructor } from './utils/helpers'
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-const classMetadata = new WeakMap<object, Record<string, unknown>>()
+let classMetadata = new WeakMap<object, Record<string, unknown>>()
 // eslint-disable-next-line @typescript-eslint/ban-types
-const paramMetadata = new WeakMap<object, Record<string, unknown>>()
+let paramMetadata = new WeakMap<object, Record<string, unknown>>()
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const root = typeof global === 'object' ? global : typeof self === 'object' ? self : {}
@@ -60,6 +60,17 @@ const _reflect = {
             Reflect.defineMetadata(key, data, target, propKey)
         }) as MethodDecorator & ClassDecorator & ParameterDecorator
     },
+    /**
+     * Cleanup function to reset metadata
+     * 
+     * It is usefull in dev mode when server restarts
+     */
+    _cleanup: (() => {
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        classMetadata = new WeakMap<object, Record<string, unknown>>()
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        paramMetadata = new WeakMap<object, Record<string, unknown>>()
+    }) as (() => void) | undefined,
 }
 
 if (!root.Reflect) {
