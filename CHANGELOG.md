@@ -1,3 +1,12 @@
+## [0.3.3](https://github.com/prostojs/mate/compare/v0.3.2...v0.3.3) (2024-12-23)
+
+
+### Features
+
+* add cleanup ([12fe4eb](https://github.com/prostojs/mate/commit/12fe4eb1b5f113e61ff479f784e2ff61648623d0))
+
+
+
 ## [0.3.2](https://github.com/prostojs/mate/compare/v0.3.1...v0.3.2) (2024-03-23)
 
 
