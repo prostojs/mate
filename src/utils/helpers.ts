@@ -11,8 +11,8 @@ export function getConstructor<T = TAny>(instance: T): TFunction {
 export function isConstructor<T = TAny>(v: T): v is T & TClassConstructor {
     return (
         typeof v === 'function' &&
-        Object.getOwnPropertyNames(v).includes('prototype') &&
-        !Object.getOwnPropertyNames(v).includes('caller') &&
+        Object.getOwnPropertyDescriptor(v, 'prototype') !== undefined &&
+        Object.getOwnPropertyDescriptor(v, 'caller') === undefined &&
         !!v.name
     )
 }

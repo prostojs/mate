@@ -10,7 +10,7 @@ type TLevels = 'CLASS' | 'METHOD' | 'PROP' | 'PARAM'
 
 export interface TMergedDecoratorArgs {
     target: TFunction | TObject
-    propKey?: string | symbol
+    propKey?: string
     descriptor?: TypedPropertyDescriptor<TAny>
     index?: number
     level?: TLevels
@@ -25,7 +25,7 @@ export interface TMatePropMeta<TParam extends TObject = TEmpty> {
 }
 
 export interface TMateClassMeta<TParam> {
-    properties?: (string | symbol)[]
+    properties?: string[]
     type?: TFunction
     returnType?: TFunction
     params?: (TParam & TMateParamMeta)[]
@@ -72,6 +72,7 @@ export class Mate<
     >,
 > {
     protected logger: TConsoleBase
+    protected _readCache?: WeakMap<object, Map<string | undefined, unknown>>
 
     constructor(
         protected workspace: string,
@@ -87,6 +88,7 @@ export class Mate<
      */
     _cleanup() {
         Reflect._cleanup?.call(Reflect)
+        this._readCache = undefined
     }
 
     set<T = TClass & TProp & TCommonMateWithParam<TProp['params'][0]>>(
@@ -94,7 +96,7 @@ export class Mate<
         cb: (
             meta: T,
             level: TLevels,
-            propKey?: string | symbol,
+            propKey?: string,
             index?: number,
         ) => T,
     ): void
@@ -124,17 +126,18 @@ export class Mate<
             | ((
                   meta: T,
                   level: TLevels,
-                  propKey?: string | symbol,
+                  propKey?: string,
                   index?: number,
               ) => T),
         value?: T[K],
         isArray?: boolean,
     ): void {
+        this._readCache = undefined
         type TT = TClass & TProp & TCommonMateWithParam<TProp['params'][0]>
         let level: TLevels = 'CLASS'
         const newArgs =
             args.level === 'CLASS'
-                ? { target: args.target }
+                ? { target: getConstructor(args.target) }
                 : args.level === 'PROP'
                   ? { target: args.target, propKey: args.propKey }
                   : args
@@ -166,13 +169,17 @@ export class Mate<
         const cb = typeof key === 'function' ? key : undefined
         let data: TT = meta
         if (!data.params) {
-            data.params = (
-                Reflect.getOwnMetadata(
-                    'design:paramtypes',
-                    newArgs.target,
-                    newArgs.propKey as string,
-                ) as TFunction[]
-            )?.map((f) => ({ type: f }))
+            const paramTypes = Reflect.getOwnMetadata(
+                'design:paramtypes',
+                newArgs.target,
+                newArgs.propKey as string,
+            ) as TFunction[] | undefined
+            if (paramTypes) {
+                data.params = new Array(paramTypes.length)
+                for (let i = 0; i < paramTypes.length; i++) {
+                    data.params[i] = { type: paramTypes[i] }
+                }
+            }
         }
         if (typeof index === 'number') {
             level = 'PARAM'
@@ -252,12 +259,17 @@ export class Mate<
     read<PK>(
         target: TFunction | TObject,
         propKey?: PK,
-    ): PK extends PropertyKey
+    ): PK extends string
         ? (TClass & TProp & TCommonMate<TProp['params'][0]>) | undefined
         : TClass | undefined {
         const isConstr = isConstructor(target)
         const constructor = isConstr ? target : getConstructor(target)
         const proto = constructor.prototype as TObject
+        const propKeyStr = propKey as string | undefined
+        const ctorCache = this._readCache?.get(constructor)
+        if (ctorCache?.has(propKeyStr)) {
+            return ctorCache.get(propKeyStr) as TAny
+        }
         type TT = TClass & TProp & TCommonMate<TProp['params'][0]>
         let ownMeta = Reflect.getOwnMetadata(
             this.workspace,
@@ -344,6 +356,13 @@ export class Mate<
                 }
             }
         }
+        const cache = (this._readCache ??= new WeakMap())
+        let tc = cache.get(constructor)
+        if (!tc) {
+            tc = new Map()
+            cache.set(constructor, tc)
+        }
+        tc.set(propKeyStr, ownMeta)
         return ownMeta
     }
 
@@ -378,7 +397,7 @@ export class Mate<
         cb: (
             meta: T,
             level: TLevels,
-            propKey?: string | symbol,
+            propKey?: string,
             index?: number,
         ) => T,
     ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
@@ -411,7 +430,7 @@ export class Mate<
             | ((
                   meta: T,
                   level: TLevels,
-                  propKey?: string | symbol,
+                  propKey?: string,
                   index?: number,
               ) => T),
         value: TIsArray extends true ? ArrayElementType<T[K]> : T[K],
@@ -439,7 +458,7 @@ export class Mate<
         ): void => {
             const args: TMergedDecoratorArgs = {
                 target,
-                propKey,
+                propKey: propKey as string,
                 descriptor:
                     typeof descriptor === 'number' ? undefined : descriptor,
                 index: typeof descriptor === 'number' ? descriptor : undefined,
@@ -493,7 +512,7 @@ export class Mate<
         cb: (
             meta: T,
             level: TLevels,
-            propKey?: string | symbol,
+            propKey?: string,
             index?: number,
         ) => T,
     ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
@@ -527,7 +546,7 @@ export class Mate<
             | ((
                   meta: T,
                   level: TLevels,
-                  propKey?: string | symbol,
+                  propKey?: string,
                   index?: number,
               ) => T),
         value?: TIsArray extends true ? ArrayElementType<T[K]> : T[K],

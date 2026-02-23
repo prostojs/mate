@@ -3,8 +3,8 @@
  * implementation supports only features required for
  * @prostojs/mate
  *
- * It's using js-objects to store metadata and not weak-map
- * to keep it simple (might be not the most optimal way)
+ * It's using WeakMaps to store metadata, which allows
+ * garbage collection of unused class references
  *
  * In order to switch to original 'reflect-metadata' just
  * include "require('reflect-metadata')" line before
