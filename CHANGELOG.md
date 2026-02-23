@@ -1,3 +1,12 @@
+# [0.4.0](https://github.com/prostojs/mate/compare/v0.3.3...v0.4.0) (2026-02-23)
+
+
+### Performance Improvements
+
+* optimize ([9852589](https://github.com/prostojs/mate/commit/98525898440ed31f8303b76fcff0143875d4ee5a))
+
+
+
 ## [0.3.3](https://github.com/prostojs/mate/compare/v0.3.2...v0.3.3) (2024-12-23)
 
 ### Features
