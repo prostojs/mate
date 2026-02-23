@@ -1,8 +1,7 @@
 import { Reflect as _reflect } from './reflect'
-import { TAny, TFunction, TObject } from'./types'
+import { TAny, TFunction, TObject } from './types'
 import { getConstructor, isConstructor } from './utils/helpers'
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const Reflect = (global?.Reflect ||
     self?.Reflect ||
     _reflect) as unknown as typeof _reflect
@@ -32,17 +31,36 @@ export interface TMateClassMeta<TParam> {
     params?: (TParam & TMateParamMeta)[]
 }
 
-type TCommonMate<TParam extends TObject> = TMateClassMeta<TParam> & TMatePropMeta<TParam>
-type TCommonMateWithParam<TParam extends TObject> = TMateClassMeta<TParam> & TMatePropMeta<TParam> & TParam
+type TCommonMate<TParam extends TObject> = TMateClassMeta<TParam> &
+    TMatePropMeta<TParam>
+type TCommonMateWithParam<TParam extends TObject> = TMateClassMeta<TParam> &
+    TMatePropMeta<TParam> &
+    TParam
 
-interface TConsoleBase { error: ((...args: any) => void) }
+interface TConsoleBase {
+    error: (...args: any) => void
+}
 
-export interface TMateOptions<TClass extends TObject = TMateClassMeta<TMateParamMeta>, TProp extends { params: TMateParamMeta[] } = Required<TMatePropMeta<TMateParamMeta>>> {
+export interface TMateOptions<
+    TClass extends TObject = TMateClassMeta<TMateParamMeta>,
+    TProp extends { params: TMateParamMeta[] } = Required<
+        TMatePropMeta<TMateParamMeta>
+    >,
+> {
     logger?: TConsoleBase
     readReturnType?: boolean
     readType?: boolean
     collectPropKeys?: boolean
-    inherit?: boolean | ((classMeta: TClass & TMateClassMeta<TMateParamMeta>, targetMeta: (TMatePropMeta<TProp['params'][0]> & TProp) | (TMateParamMeta & TProp['params'][0]), level: 'CLASS' | 'PROP' | 'PARAM', key?: string) => boolean)
+    inherit?:
+        | boolean
+        | ((
+              classMeta: TClass & TMateClassMeta<TMateParamMeta>,
+              targetMeta:
+                  | (TMatePropMeta<TProp['params'][0]> & TProp)
+                  | (TMateParamMeta & TProp['params'][0]),
+              level: 'CLASS' | 'PROP' | 'PARAM',
+              key?: string,
+          ) => boolean)
 }
 
 interface TEmpty {}
@@ -53,7 +71,7 @@ export class Mate<
         TMatePropMeta<TMateParamMeta>
     >,
 > {
-    protected logger: TConsoleBase;
+    protected logger: TConsoleBase
 
     constructor(
         protected workspace: string,
@@ -79,12 +97,12 @@ export class Mate<
             propKey?: string | symbol,
             index?: number,
         ) => T,
-    ): void;
+    ): void
 
     set<
         T = TClass & TProp & TCommonMateWithParam<TProp['params'][0]>,
         K extends keyof T = keyof T,
-    >(args: TMergedDecoratorArgs, key: keyof T, value: T[K]): void;
+    >(args: TMergedDecoratorArgs, key: keyof T, value: T[K]): void
 
     set<
         T = TClass & TProp & TCommonMateWithParam<TProp['params'][0]>,
@@ -94,7 +112,7 @@ export class Mate<
         key: keyof T,
         value: T[K],
         isArray: boolean | undefined,
-    ): void;
+    ): void
 
     set<
         T = TClass & TProp & TCommonMateWithParam<TProp['params'][0]>,
@@ -112,14 +130,14 @@ export class Mate<
         value?: T[K],
         isArray?: boolean,
     ): void {
-        type TT = TClass & TProp & TCommonMateWithParam<TProp['params'][0]>;
+        type TT = TClass & TProp & TCommonMateWithParam<TProp['params'][0]>
         let level: TLevels = 'CLASS'
         const newArgs =
             args.level === 'CLASS'
                 ? { target: args.target }
                 : args.level === 'PROP'
-                    ? { target: args.target, propKey: args.propKey }
-                    : args
+                  ? { target: args.target, propKey: args.propKey }
+                  : args
         let meta: TT = (Reflect.getOwnMetadata(
             this.workspace,
             newArgs.target,
@@ -197,10 +215,10 @@ export class Mate<
             typeof index === 'number'
                 ? 'PARAM'
                 : newArgs.propKey && newArgs.descriptor
-                    ? 'METHOD'
-                    : newArgs.propKey
-                        ? 'PROP'
-                        : 'CLASS'
+                  ? 'METHOD'
+                  : newArgs.propKey
+                    ? 'PROP'
+                    : 'CLASS'
         if (typeof key !== 'function') {
             if (isArray) {
                 const newArray = ((data as T)[key] || []) as unknown[]
@@ -210,10 +228,10 @@ export class Mate<
                         'Mate.add (isArray=true) called for non-array metadata',
                     )
                 }
-                newArray.unshift(value);
-                (data as T)[key] = newArray as T[K]
+                newArray.unshift(value)
+                ;(data as T)[key] = newArray as T[K]
             } else {
-                (data as T)[key] = value as T[K]
+                ;(data as T)[key] = value as T[K]
             }
         } else if (cb && typeof index !== 'number') {
             meta = cb(
@@ -240,7 +258,7 @@ export class Mate<
         const isConstr = isConstructor(target)
         const constructor = isConstr ? target : getConstructor(target)
         const proto = constructor.prototype as TObject
-        type TT = TClass & TProp & TCommonMate<TProp['params'][0]>;
+        type TT = TClass & TProp & TCommonMate<TProp['params'][0]>
         let ownMeta = Reflect.getOwnMetadata(
             this.workspace,
             typeof propKey === 'string' ? proto : constructor,
@@ -343,7 +361,7 @@ export class Mate<
             descriptor: TypedPropertyDescriptor<TAny> | number,
         ): void => {
             for (const d of decorators) {
-                (
+                ;(
                     d as MethodDecorator &
                         ClassDecorator &
                         ParameterDecorator &
@@ -363,10 +381,7 @@ export class Mate<
             propKey?: string | symbol,
             index?: number,
         ) => T,
-    ): MethodDecorator &
-        ClassDecorator &
-        ParameterDecorator &
-        PropertyDecorator;
+    ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
 
     decorate<
         T = TClass & TProp & TCommonMateWithParam<TProp['params'][0]>,
@@ -374,10 +389,7 @@ export class Mate<
     >(
         key: K,
         value: T[K],
-    ): MethodDecorator &
-        ClassDecorator &
-        ParameterDecorator &
-        PropertyDecorator;
+    ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
 
     decorate<
         T = TClass & TProp & TCommonMateWithParam<TProp['params'][0]>,
@@ -387,10 +399,7 @@ export class Mate<
         key: K,
         value: TIsArray extends true ? ArrayElementType<T[K]> : T[K],
         isArray: TIsArray,
-    ): MethodDecorator &
-        ClassDecorator &
-        ParameterDecorator &
-        PropertyDecorator;
+    ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
 
     decorate<
         T = TClass & TProp & TCommonMateWithParam<TProp['params'][0]>,
@@ -408,10 +417,7 @@ export class Mate<
         value: TIsArray extends true ? ArrayElementType<T[K]> : T[K],
         isArray: TIsArray,
         level: TMergedDecoratorArgs['level'],
-    ): MethodDecorator &
-        ClassDecorator &
-        ParameterDecorator &
-        PropertyDecorator;
+    ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
 
     decorate<
         T = TClass & TProp & TCommonMateWithParam<TProp['params'][0]>,
@@ -469,10 +475,10 @@ export class Mate<
             const decoratorLevel: TLevels = hasIndex
                 ? 'PARAM'
                 : propKey && descriptor
-                    ? 'METHOD'
-                    : propKey
-                        ? 'PROP'
-                        : 'CLASS'
+                  ? 'METHOD'
+                  : propKey
+                    ? 'PROP'
+                    : 'CLASS'
             const d = ccb(decoratorLevel)
             if (d) {
                 d(target, propKey, descriptor as TypedPropertyDescriptor<TAny>)
@@ -490,10 +496,7 @@ export class Mate<
             propKey?: string | symbol,
             index?: number,
         ) => T,
-    ): MethodDecorator &
-        ClassDecorator &
-        ParameterDecorator &
-        PropertyDecorator;
+    ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
 
     decorateClass<
         T = TClass,
@@ -502,10 +505,7 @@ export class Mate<
     >(
         key: K,
         value: TIsArray extends true ? ArrayElementType<T[K]> : T[K],
-    ): MethodDecorator &
-        ClassDecorator &
-        ParameterDecorator &
-        PropertyDecorator;
+    ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
 
     decorateClass<
         T = TClass,
@@ -515,10 +515,7 @@ export class Mate<
         key: K,
         value: TIsArray extends true ? ArrayElementType<T[K]> : T[K],
         isArray: boolean | undefined,
-    ): MethodDecorator &
-        ClassDecorator &
-        ParameterDecorator &
-        PropertyDecorator;
+    ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
 
     decorateClass<
         T = TClass,
@@ -550,4 +547,4 @@ export class Mate<
 
 const fnProto = Object.getPrototypeOf(Function) as TFunction
 
-type ArrayElementType<T> = T extends (infer E)[] ? E : never;
+type ArrayElementType<T> = T extends (infer E)[] ? E : never

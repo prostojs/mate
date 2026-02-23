@@ -1,5 +1,15 @@
+import { describe, it, expect } from 'vitest'
 import { Mate } from '../mate'
-import { MateTestClass, MateTestClass2, MateTestClass3, mate, MateTestClass4, MateTestParentClass, MateTestChildClass, MateTestChildClass2 } from './mate.artifacts'
+import {
+    MateTestClass,
+    MateTestClass2,
+    MateTestClass3,
+    mate,
+    MateTestClass4,
+    MateTestParentClass,
+    MateTestChildClass,
+    MateTestChildClass2,
+} from './mate.artifacts'
 import { getConstructor, isConstructor } from '../utils/helpers'
 
 describe('Mate', () => {
@@ -19,20 +29,14 @@ describe('Mate', () => {
         expect(classMeta).toEqual({
             multi: 'for CLASS',
             class: 'class value',
-            classArray: [
-                'class value 1',
-                'class value 2',
-            ],
+            classArray: ['class value 1', 'class value 2'],
             properties: ['prop1', 'prop2', 'param'],
             fromProperty: ['toClass'],
             fromPropertyCb: ['param'],
             params: [
                 {
                     param: 'param a',
-                    paramArray: [
-                        'param a1',
-                        'param a2',
-                    ],
+                    paramArray: ['param a1', 'param a2'],
                     type: String,
                 },
             ],
@@ -54,20 +58,14 @@ describe('Mate', () => {
         expect(methodMeta).toEqual({
             multi: 'for METHOD',
             method: 'method value',
-            methodArray: [
-                'method value1',
-                'method value2',
-            ],
+            methodArray: ['method value1', 'method value2'],
             returnType: String,
             type: Function,
             params: [
                 {
                     multi: 'for PARAM',
                     param: 'param b',
-                    paramArray: [
-                        'param b1',
-                        'param b2',
-                    ],
+                    paramArray: ['param b1', 'param b2'],
                     type: String,
                 },
             ],
@@ -79,7 +77,7 @@ describe('Mate', () => {
             property: 'property value',
             type: String,
         })
-        
+
         class A {
             @mate.decorate('propS', 'propS data')
             s: string = ''
@@ -130,7 +128,7 @@ describe('Mate', () => {
             d2: 'v2',
             d3: 'v3',
             method: 'method value',
-            params: [ { type: Number }, { type: Boolean } ],
+            params: [{ type: Number }, { type: Boolean }],
             returnType: undefined,
             type: Function,
         })
@@ -169,9 +167,11 @@ describe('Mate', () => {
         expect(mate.read(MateTestClass2, 'toOverwriteMeta')).toEqual({
             method: 'method from class 2',
             method2: 'method from class 2',
-            params: [{
-                type: String,
-            }],
+            params: [
+                {
+                    type: String,
+                },
+            ],
             returnType: undefined,
             type: Function,
         })
@@ -184,13 +184,13 @@ describe('Mate', () => {
             type: Function,
         })
     })
-    
+
     it('must not inherit when condition for inheritance is false', () => {
         const classMeta = mate.read(MateTestClass4)
         const methodMetaTest = mate.read(MateTestClass4, 'test')
         const methodMetaTest2 = mate.read(MateTestClass4, 'test2')
         const methodMetaTest3 = mate.read(MateTestClass4, 'toOverwriteMeta')
-        
+
         expect(classMeta).toEqual({
             inherit: false,
             params: [],
@@ -222,14 +222,24 @@ describe('helpers/isConstructor', () => {
         expect(isConstructor(Mate)).toBe(true)
     })
     it('must return false if arrow function passed', () => {
-        const fn = () => {/** */}
+        const fn = () => {
+            /** */
+        }
         expect(isConstructor(fn)).toBe(false)
     })
     it('must return false if anon function passed', () => {
-        expect(isConstructor(function(){/** */})).toBe(false)
+        expect(
+            isConstructor(function () {
+                /** */
+            }),
+        ).toBe(false)
     })
     it('must return false if arrow function passed 2', () => {
-        expect(isConstructor(() => {/** */})).toBe(false)
+        expect(
+            isConstructor(() => {
+                /** */
+            }),
+        ).toBe(false)
     })
     // ? not possible to distinguish regular named fn from class constructor
     // it('must return false if named function passed', () => {

@@ -1,6 +1,6 @@
-require('reflect-metadata')
-
-import { Reflect as _reflect } from '../reflect' 
+import { describe, it, expect } from 'vitest'
+import 'reflect-metadata'
+import { Reflect as _reflect } from '../reflect'
 import { ReflectTestClass } from './reflect.artifacts'
 
 describe('Reflect', () => {
@@ -26,17 +26,41 @@ describe('Reflect', () => {
     })
 
     it('must set method metadata similar way as reflect-metadata', () => {
-        const m1 = Reflect.getOwnMetadata('method-key', ReflectTestClass.prototype, 'method')
-        const m2 = _reflect.getOwnMetadata('method-key', ReflectTestClass.prototype, 'method')
+        const m1 = Reflect.getOwnMetadata(
+            'method-key',
+            ReflectTestClass.prototype,
+            'method',
+        )
+        const m2 = _reflect.getOwnMetadata(
+            'method-key',
+            ReflectTestClass.prototype,
+            'method',
+        )
         expect(m1).toEqual(m2)
     })
 
     it('must set method params metadata similar way as reflect-metadata', () => {
-        const m1 = Reflect.getOwnMetadata('prop-a', ReflectTestClass.prototype, 'method')
-        const m2 = _reflect.getOwnMetadata('prop-a', ReflectTestClass.prototype, 'method')
+        const m1 = Reflect.getOwnMetadata(
+            'prop-a',
+            ReflectTestClass.prototype,
+            'method',
+        )
+        const m2 = _reflect.getOwnMetadata(
+            'prop-a',
+            ReflectTestClass.prototype,
+            'method',
+        )
         expect(m1).toEqual(m2)
-        const m3 = Reflect.getOwnMetadata('prop-b', ReflectTestClass.prototype, 'method')
-        const m4 = _reflect.getOwnMetadata('prop-b', ReflectTestClass.prototype, 'method')
+        const m3 = Reflect.getOwnMetadata(
+            'prop-b',
+            ReflectTestClass.prototype,
+            'method',
+        )
+        const m4 = _reflect.getOwnMetadata(
+            'prop-b',
+            ReflectTestClass.prototype,
+            'method',
+        )
         expect(m3).toEqual(m4)
     })
 })

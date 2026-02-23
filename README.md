@@ -19,27 +19,27 @@ npm install @prostojs/mate
 After installation, you can start using Mate to define and handle metadata in your TypeScript project. Below is an example that showcases different levels of metadata usage.
 
 ```ts
-import { TMateParamMeta } from '@prostojs/mate';
-import { Mate } from '@prostojs/mate';
+import { TMateParamMeta } from '@prostojs/mate'
+import { Mate } from '@prostojs/mate'
 
 // Define your metadata interfaces
 interface TClassMeta {
-    name: string;
-    model: string;
-    fromParam: string;
-    manufacturer: string;
-    data: string[];
-    inherit?: bolean;
+    name: string
+    model: string
+    fromParam: string
+    manufacturer: string
+    data: string[]
+    inherit?: bolean
 }
 
 interface TPropMeta<TParamMeta> {
-    description: string;
-    params: (TMateParamMeta & TParamMeta)[];
+    description: string
+    params: (TMateParamMeta & TParamMeta)[]
     inherit?: bolean
 }
 
 interface TParamMeta {
-    required: boolean;
+    required: boolean
 }
 
 const mate = new Mate<TClassMeta, TPropMeta<TParamMeta>>('robot-meta', {
@@ -47,32 +47,32 @@ const mate = new Mate<TClassMeta, TPropMeta<TParamMeta>>('robot-meta', {
     readType: true,
     collectPropKeys: true,
     inherit(classMeta, targetMeta, level, prop) {
-        return !!targetMeta?.inherit || !!classMeta?.inherit;
+        return !!targetMeta?.inherit || !!classMeta?.inherit
     },
-});
+})
 
 // Annotate your class
-@mate.decorate('name', 'NXT') 
-@mate.decorate('model', 'EV3') 
+@mate.decorate('name', 'NXT')
+@mate.decorate('model', 'EV3')
 @mate.decorate('manufacturer', 'LEGO')
-@mate.decorate('data', 'NXT-0001', true)  
+@mate.decorate('data', 'NXT-0001', true)
 class Robot {
     @mate.decorate('description', 'Robotic arm for grabbing objects')
-    arm: string;
+    arm: string
 
-    @mate.decorate('description', 'Sensors to detect objects') 
+    @mate.decorate('description', 'Sensors to detect objects')
     sensors(
-        @mate.decorateClass('fromParam', 'hoised value')  
-        @mate.decorate('required', true) 
-        input: string
+        @mate.decorateClass('fromParam', 'hoised value')
+        @mate.decorate('required', true)
+        input: string,
     ): string {
-        return 'Activated sensors with input: ' + input;
+        return 'Activated sensors with input: ' + input
     }
 }
 
 // Read the metadata
-let classMeta = mate.read(Robot);
-console.log(classMeta);
+let classMeta = mate.read(Robot)
+console.log(classMeta)
 // Expected Output:
 // {
 //     name: 'NXT',
@@ -86,8 +86,8 @@ console.log(classMeta);
 // }
 
 // read the property metadata
-let armMeta = mate.read(Robot, 'arm');
-console.log(armMeta);
+let armMeta = mate.read(Robot, 'arm')
+console.log(armMeta)
 // Expected Output:
 // {
 //     description: 'Robotic arm for grabbing objects',
@@ -97,8 +97,8 @@ console.log(armMeta);
 // }
 
 // read the method metadata
-let sensorsMeta = mate.read(Robot, 'sensors');
-console.log(sensorsMeta);
+let sensorsMeta = mate.read(Robot, 'sensors')
+console.log(sensorsMeta)
 // Expected Output:
 // {
 //     description: 'Sensors to detect objects',
@@ -132,12 +132,14 @@ const mate = new Mate<MyMeta>('my-metadata-key', {
         if (prop) {
             // if it is a method metadata
             // we require a key `inherit` to be true for inheritance
-            return !!methodMeta?.inherit || !!(classMeta?.inherit && !methodMeta)
+            return (
+                !!methodMeta?.inherit || !!(classMeta?.inherit && !methodMeta)
+            )
         }
         // otherwise (in case of class metadata) we require a key `inherit`
         // to be true for inheritance on class metadata
         return !!classMeta?.inherit
-    }
+    },
 })
 ```
 

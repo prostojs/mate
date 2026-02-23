@@ -1,0 +1,21 @@
+{
+    "$schema": "./node_modules/oxfmt/configuration_schema.json",
+    "printWidth": 80,
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "insertFinalNewline": true,
+    "ignorePatterns": [
+        ".claude",
+        "dist",
+        "*.cjs.js",
+        "*.cjs.prod.js",
+        "*.esm-bundler.js",
+        "*.esm-browser.js",
+        "*.esm-browser.prod.js",
+        "*.global.js",
+        "*.global.prod.js"
+    ]
+}

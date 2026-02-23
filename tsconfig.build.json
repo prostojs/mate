@@ -1,0 +1,20 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "rootDir": "src",
+        "outDir": "dts-build",
+        "removeComments": false,
+        "sourceMap": false
+    },
+    "include": ["src/*", "src/**/*", "node_modules/@prostojs/dye/global.d.ts"],
+    "exclude": [
+        "node_modules",
+        "explorations",
+        "scripts",
+        "**/__tests__",
+        "**/*.spec.ts",
+        "**/*.artifacts.ts"
+    ]
+}
