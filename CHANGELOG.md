@@ -1,3 +1,12 @@
+# [0.5.0](https://github.com/prostojs/mate/compare/v0.4.0...v0.5.0) (2026-07-16)
+
+
+### Features
+
+* warn when a duplicate copy of mate is loaded ([082a2ce](https://github.com/prostojs/mate/commit/082a2ce630ccef28a69a13fbcab00afac7d9d4fa))
+
+
+
 # [0.4.0](https://github.com/prostojs/mate/compare/v0.3.3...v0.4.0) (2026-02-23)
 
 
