@@ -1,5 +1,10 @@
+import { readFileSync } from 'node:fs'
 import { defineConfig } from 'rolldown'
 import { dts } from 'rolldown-plugin-dts'
+
+const pkg = JSON.parse(
+    readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
+)
 
 function createConfig(type) {
     const formats = { cjs: 'cjs', mjs: 'es' }
@@ -10,8 +15,13 @@ function createConfig(type) {
             format: formats[type],
             sourcemap: false,
         },
-        define: {
-            'process.env.NODE_ENV': JSON.stringify('production'),
+        // rolldown honors define only under transform.define
+        // (top-level define is silently ignored)
+        transform: {
+            define: {
+                'process.env.NODE_ENV': JSON.stringify('production'),
+                __VERSION__: JSON.stringify(pkg.version),
+            },
         },
     })
 }
