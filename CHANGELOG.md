@@ -1,3 +1,12 @@
+## [0.5.1](https://github.com/prostojs/mate/compare/v0.5.0...v0.5.1) (2026-10-09)
+
+
+### Performance Improvements
+
+* cache-first read and allocation-free isConstructor ([f051e92](https://github.com/prostojs/mate/commit/f051e9215c250cca3a4c9021a9f82162e7a0077f))
+
+
+
 # [0.5.0](https://github.com/prostojs/mate/compare/v0.4.0...v0.5.0) (2026-07-16)
 
 

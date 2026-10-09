@@ -1,6 +1,6 @@
 {
     "name": "@prostojs/mate",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "description": "MATE is TS Metadata Organizer",
     "keywords": [
         "decorators",
