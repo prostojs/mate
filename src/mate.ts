@@ -72,7 +72,22 @@ export class Mate<
     >,
 > {
     protected logger: TConsoleBase
+    /**
+     * Read cache keyed by the resolved constructor. Invariant: every function
+     * key here passed `isConstructor` when stored, so a hit on a function
+     * `target` itself proves `target` is that constructor — `read` probes
+     * it before running `isConstructor`.
+     */
     protected _readCache?: WeakMap<object, Map<string | undefined, unknown>>
+    /**
+     * Read cache for resolved "constructors" that are functions failing
+     * `isConstructor` (e.g. an anonymous class reached through an instance's
+     * `.constructor`). Kept apart so they cannot satisfy the fast probe.
+     */
+    protected _readCacheNonCtor?: WeakMap<
+        object,
+        Map<string | undefined, unknown>
+    >
 
     constructor(
         protected workspace: string,
@@ -89,16 +104,12 @@ export class Mate<
     _cleanup() {
         Reflect._cleanup?.call(Reflect)
         this._readCache = undefined
+        this._readCacheNonCtor = undefined
     }
 
     set<T = TClass & TProp & TCommonMateWithParam<TProp['params'][0]>>(
         args: TMergedDecoratorArgs,
-        cb: (
-            meta: T,
-            level: TLevels,
-            propKey?: string,
-            index?: number,
-        ) => T,
+        cb: (meta: T, level: TLevels, propKey?: string, index?: number) => T,
     ): void
 
     set<
@@ -133,6 +144,7 @@ export class Mate<
         isArray?: boolean,
     ): void {
         this._readCache = undefined
+        this._readCacheNonCtor = undefined
         type TT = TClass & TProp & TCommonMateWithParam<TProp['params'][0]>
         let level: TLevels = 'CLASS'
         const newArgs =
@@ -262,14 +274,28 @@ export class Mate<
     ): PK extends string
         ? (TClass & TProp & TCommonMate<TProp['params'][0]>) | undefined
         : TClass | undefined {
+        const propKeyStr = propKey as string | undefined
+        const ctorCacheRoot = this._readCache
+        if (ctorCacheRoot !== undefined && typeof target === 'function') {
+            // Fast path: see the `_readCache` invariant.
+            const hit = readCached(ctorCacheRoot.get(target), propKeyStr)
+            if (hit !== MISS) {
+                return hit as TAny
+            }
+        }
         const isConstr = isConstructor(target)
         const constructor = isConstr ? target : getConstructor(target)
-        const proto = constructor.prototype as TObject
-        const propKeyStr = propKey as string | undefined
-        const ctorCache = this._readCache?.get(constructor)
-        if (ctorCache?.has(propKeyStr)) {
-            return ctorCache.get(propKeyStr) as TAny
+        if (!isConstr) {
+            const hit = readCached(
+                ctorCacheRoot?.get(constructor) ??
+                    this._readCacheNonCtor?.get(constructor),
+                propKeyStr,
+            )
+            if (hit !== MISS) {
+                return hit as TAny
+            }
         }
+        const proto = constructor.prototype as TObject
         type TT = TClass & TProp & TCommonMate<TProp['params'][0]>
         let ownMeta = Reflect.getOwnMetadata(
             this.workspace,
@@ -356,7 +382,12 @@ export class Mate<
                 }
             }
         }
-        const cache = (this._readCache ??= new WeakMap())
+        const cache =
+            isConstr ||
+            typeof constructor !== 'function' ||
+            isConstructor(constructor)
+                ? (this._readCache ??= new WeakMap())
+                : (this._readCacheNonCtor ??= new WeakMap())
         let tc = cache.get(constructor)
         if (!tc) {
             tc = new Map()
@@ -394,12 +425,7 @@ export class Mate<
     }
 
     decorate<T = TClass & TProp & TCommonMateWithParam<TProp['params'][0]>>(
-        cb: (
-            meta: T,
-            level: TLevels,
-            propKey?: string,
-            index?: number,
-        ) => T,
+        cb: (meta: T, level: TLevels, propKey?: string, index?: number) => T,
     ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
 
     decorate<
@@ -509,12 +535,7 @@ export class Mate<
     }
 
     decorateClass<T = TClass>(
-        cb: (
-            meta: T,
-            level: TLevels,
-            propKey?: string,
-            index?: number,
-        ) => T,
+        cb: (meta: T, level: TLevels, propKey?: string, index?: number) => T,
     ): MethodDecorator & ClassDecorator & ParameterDecorator & PropertyDecorator
 
     decorateClass<
@@ -565,5 +586,19 @@ export class Mate<
 }
 
 const fnProto = Object.getPrototypeOf(Function) as TFunction
+
+const MISS = Symbol('mate.read.miss')
+
+function readCached(
+    tc: Map<string | undefined, unknown> | undefined,
+    propKey: string | undefined,
+): unknown {
+    if (tc === undefined) {
+        return MISS
+    }
+    const v = tc.get(propKey)
+    // `undefined` is a legitimately cached result (no metadata)
+    return v !== undefined || tc.has(propKey) ? v : MISS
+}
 
 type ArrayElementType<T> = T extends (infer E)[] ? E : never

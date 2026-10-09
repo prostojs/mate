@@ -250,6 +250,228 @@ describe('helpers/isConstructor', () => {
     //     const fn = function(){/** */}
     //     expect(isConstructor(fn)).toBe(false)
     // })
+
+    // Reference: the original descriptor-allocating implementation. The
+    // hasOwnProperty-based one must agree with it on every input.
+    const isConstructorRef = (v: unknown) =>
+        typeof v === 'function' &&
+        Object.getOwnPropertyDescriptor(v, 'prototype') !== undefined &&
+        Object.getOwnPropertyDescriptor(v, 'caller') === undefined &&
+        !!v.name
+    class Named {
+        m() {
+            /** */
+        }
+    }
+    const anonClass = (() => class {})()
+    Object.defineProperty(anonClass, 'name', { value: '' })
+    // eslint-disable-next-line no-new-func
+    const sloppyFn = new Function('return function sloppy() {}')() as () => void
+    function namedFn() {
+        /** */
+    }
+    const cases: [string, unknown, boolean][] = [
+        ['class', Named, true],
+        ['anonymous class', anonClass, false],
+        ['named function (strict)', namedFn, true],
+        ['named function (sloppy)', sloppyFn, false],
+        ['arrow function', () => undefined, false],
+        ['async function', async function af() {}, false],
+        ['generator function', function* gf() {}, true],
+        ['method shorthand', { m() {} }.m, false],
+        ['bound function', namedFn.bind(null), false],
+        ['bound class', Named.bind(null), false],
+        ['proxy of class', new Proxy(Named, {}), true],
+        ['proxy of arrow', new Proxy(() => undefined, {}), false],
+        ['Function', Function, true],
+        ['plain object', {}, false],
+        ['instance', new Named(), false],
+        ['class prototype object', Named.prototype, false],
+        ['Object.prototype', Object.prototype, false],
+        ['null-prototype object', Object.create(null), false],
+        ['null', null, false],
+        ['undefined', undefined, false],
+        ['string', 'Named', false],
+    ]
+    it('anonymous class has an empty name (test precondition)', () => {
+        expect(anonClass.name).toBe('')
+    })
+    for (const [label, value, expected] of cases) {
+        it(`${label} -> ${expected} (same as reference)`, () => {
+            expect(isConstructor(value)).toBe(expected)
+            expect(isConstructor(value)).toBe(isConstructorRef(value))
+        })
+    }
+    it('fires proxy getOwnPropertyDescriptor traps exactly like the reference', () => {
+        const traced = () => {
+            const seen: PropertyKey[] = []
+            const p = new Proxy(Named, {
+                getOwnPropertyDescriptor(t, k) {
+                    seen.push(k)
+                    return Reflect.getOwnPropertyDescriptor(t, k)
+                },
+            })
+            return { p, seen }
+        }
+        const a = traced()
+        const b = traced()
+        expect(isConstructor(a.p)).toBe(isConstructorRef(b.p))
+        expect(a.seen).toEqual(['prototype', 'caller'])
+        expect(a.seen).toEqual(b.seen)
+    })
+    it('honours a proxy that hides prototype / reports caller', () => {
+        const noProto = new Proxy(Named, {
+            getOwnPropertyDescriptor: (t, k) =>
+                k === 'prototype'
+                    ? undefined
+                    : Reflect.getOwnPropertyDescriptor(t, k),
+            // prototype is non-configurable on the target, so hiding it must
+            // throw (proxy invariant) — in both implementations
+        })
+        expect(() => isConstructor(noProto)).toThrow(TypeError)
+        expect(() => isConstructorRef(noProto)).toThrow(TypeError)
+        const withCaller = new Proxy(Named, {
+            getOwnPropertyDescriptor: (t, k) =>
+                k === 'caller'
+                    ? {
+                          value: null,
+                          configurable: true,
+                          writable: false,
+                          enumerable: false,
+                      }
+                    : Reflect.getOwnPropertyDescriptor(t, k),
+        })
+        expect(isConstructor(withCaller)).toBe(isConstructorRef(withCaller))
+    })
+})
+
+describe('Mate.read cache', () => {
+    const fresh = () =>
+        new Mate<
+            { tag?: string },
+            { params: { type?: Function; tag?: string }[]; tag?: string }
+        >('read-cache-' + Math.random())
+    const desc = (C: { prototype: object }, k: string) =>
+        Object.getOwnPropertyDescriptor(C.prototype, k) as PropertyDescriptor
+
+    it('returns the same cached object for class, instance and repeated reads', () => {
+        const m = fresh()
+        class A {
+            h() {
+                /** */
+            }
+        }
+        m.decorate('tag', 'cls')(A)
+        m.decorate('tag', 'h')(A.prototype, 'h', desc(A, 'h'))
+        const viaInstance = m.read(new A(), 'h')
+        const viaClass = m.read(A, 'h')
+        expect(viaClass?.tag).toBe('h')
+        expect(viaInstance).toBe(viaClass)
+        expect(m.read(A, 'h')).toBe(viaClass)
+        expect(m.read(A)?.tag).toBe('cls')
+        expect(m.read(A)).toBe(m.read(new A()))
+    })
+
+    it('caches undefined results and invalidates on set', () => {
+        const m = fresh()
+        class A {
+            h() {
+                /** */
+            }
+        }
+        expect(m.read(A, 'h')).toBeUndefined()
+        expect(m.read(A, 'h')).toBeUndefined()
+        m.decorate('tag', 'late')(A.prototype, 'h', desc(A, 'h'))
+        expect(m.read(A, 'h')?.tag).toBe('late')
+    })
+
+    it('keeps anonymous-class semantics regardless of read order', () => {
+        // An anonymous class fails isConstructor, so reading it directly
+        // resolves to Function, while its instances resolve to the class.
+        const m = fresh()
+        const Anon = (() =>
+            class {
+                h() {
+                    /** */
+                }
+            })()
+        // transpilers may name it (e.g. swc names it `_class`); force a true anonymous class
+        Object.defineProperty(Anon, 'name', { value: '' })
+        expect(Anon.name).toBe('')
+        m.decorate('tag', 'anon-h')(Anon.prototype, 'h', desc(Anon, 'h'))
+        const inst = new Anon()
+        for (let i = 0; i < 2; i++) {
+            expect(m.read(inst, 'h')?.tag).toBe('anon-h')
+            expect(m.read(Anon, 'h')).toBeUndefined()
+        }
+        const m2 = fresh()
+        m2.decorate('tag', 'anon-h')(Anon.prototype, 'h', desc(Anon, 'h'))
+        for (let i = 0; i < 2; i++) {
+            expect(m2.read(Anon, 'h')).toBeUndefined()
+            expect(m2.read(inst, 'h')?.tag).toBe('anon-h')
+        }
+    })
+
+    it('invalidates both caches on set and on _cleanup', () => {
+        const m = fresh()
+        class A {
+            h() {
+                /** */
+            }
+        }
+        const Anon = (() =>
+            class {
+                h() {
+                    /** */
+                }
+            })()
+        Object.defineProperty(Anon, 'name', { value: '' })
+        const inst = new Anon()
+        expect(m.read(A, 'h')).toBeUndefined()
+        expect(m.read(inst, 'h')).toBeUndefined()
+        m.decorate('tag', 'anon')(Anon.prototype, 'h', desc(Anon, 'h'))
+        expect(m.read(inst, 'h')?.tag).toBe('anon')
+        m.decorate('tag', 'a')(A.prototype, 'h', desc(A, 'h'))
+        expect(m.read(A, 'h')?.tag).toBe('a')
+        expect(m.read(inst, 'h')?.tag).toBe('anon')
+        const caches = m as unknown as Record<string, unknown>
+        expect(caches._readCache).toBeDefined()
+        expect(caches._readCacheNonCtor).toBeDefined()
+        m._cleanup()
+        expect(caches._readCache).toBeUndefined()
+        expect(caches._readCacheNonCtor).toBeUndefined()
+        expect([m.read(A, 'h')?.tag, m.read(inst, 'h')?.tag]).toEqual([
+            'a',
+            'anon',
+        ])
+    })
+
+    it('resolves non-constructor functions to their .constructor', () => {
+        const m = fresh()
+        const arrow = () => undefined
+        const bound = function named() {
+            /** */
+        }.bind(null)
+        for (let i = 0; i < 2; i++) {
+            expect(m.read(arrow)).toBe(m.read(Function))
+            expect(m.read(bound)).toBe(m.read(Function))
+        }
+    })
+
+    it('treats a proxy of a class as its own constructor sharing the prototype', () => {
+        const m = fresh()
+        class A {
+            h() {
+                /** */
+            }
+        }
+        m.decorate('tag', 'h')(A.prototype, 'h', desc(A, 'h'))
+        const P = new Proxy(A, {})
+        const first = m.read(P, 'h')
+        expect(first?.tag).toBe('h')
+        expect(m.read(P, 'h')).toBe(first)
+        expect(m.read(A, 'h')?.tag).toBe('h')
+    })
 })
 
 describe('constructor params inheritence', () => {
